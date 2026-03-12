@@ -1,8 +1,6 @@
 ---
 name: smartx-doc-analyzer
-description: 分析 SmartX 产品文档，识别功能涉及的产品，提取 Google Drive 搜索关键词。只要用户提到文档分析、产品归属识别、关键词提取、文档分类，就使用此 Skill——即使措辞模糊，如"帮我看看这个文档"、"这个功能是哪个产品的"、"从文档里提几个关键词"也应触发。支持 PDF、DOCX、MD 格式。
-metadata:
-  compatibility: pdf skill 的 pdf2text 命令（读取 PDF / DOCX 文件）
+description: 分析 SmartX 产品文档，识别功能涉及的产品，提取 Google Drive 搜索关键词。适用于文档分析、产品归属识别、关键词提取、文档分类等请求。即使用户只说“帮我看看这个文档”“这个功能是哪个产品的”“从文档里提几个关键词”也应触发。支持 PDF、DOCX、MD 格式。
 ---
 
 # SmartX 文档分析
@@ -17,7 +15,7 @@ metadata:
 
 根据文件类型选择读取方式：
 
-- `.pdf` / `.docx` → 调用 pdf skill 的 pdftotext 命令读取
+- `.pdf` / `.docx` → 使用当前环境中可行的本地读取方式；若存在专用 pdf skill 或已安装读取工具，优先复用
 - `.md` → 直接读取文件内容
 
 读取失败时，报告错误路径并停止，等用户确认后再继续。

@@ -1,6 +1,6 @@
 ---
 name: keyword-related-file-from-google-drive
-description: Search Google Drive for files related to keywords extracted from document analysis results. Use this skill whenever the user provides document analysis output (containing a description summary and keywords) and wants to find related files in Google Drive. Trigger when the user mentions "Google Drive search", "keyword search", "find related files", or provides analysis results with keywords to search against Drive. Also trigger when the user says things like "根据分析结果搜索文件", "用关键词搜 Drive", or "帮我找相关文件".
+description: 根据文档分析结果中的描述摘要和关键词，在 Google Drive 中搜索相关文件。适用于“根据分析结果搜索文件”“用关键词搜 Drive”“帮我找相关文件”“Google Drive 搜索”等请求。
 ---
 
 # Keyword Related File From Google Drive
@@ -9,12 +9,7 @@ description: Search Google Drive for files related to keywords extracted from do
 
 ## 前置条件
 
-本技能依赖位于技能目录 `scripts/drive_search_by_keywords.py` 的脚本。执行前请确认脚本存在：
-
-```bash
-ls "$(dirname "$0")/scripts/drive_search_by_keywords.py" 2>/dev/null \
-  || echo "⚠️ 脚本不存在，请检查技能目录结构"
-```
+本技能依赖位于技能目录 `scripts/drive_search_by_keywords.py` 的脚本。执行前先确认脚本存在；若脚本缺失，直接提示技能安装不完整并停止。
 
 ---
 
@@ -56,16 +51,15 @@ ls "$(dirname "$0")/scripts/drive_search_by_keywords.py" 2>/dev/null \
 
 使用技能目录下的脚本批量搜索，脚本内部会自动处理关键词中的特殊字符（单引号、反斜杠等）：
 
-```bash
-# SKILL_DIR 为本技能的安装目录，需替换为实际路径
-python3 "${SKILL_DIR}/scripts/drive_search_by_keywords.py" 关键词1 关键词2 关键词3
+```text
+python <SKILL_DIR>/scripts/drive_search_by_keywords.py 关键词1 关键词2 关键词3
 ```
 
-**执行要点：**
+执行要点：
 - 将所有关键词作为独立参数传入，一次调用完成（避免多次调用导致重复 OAuth 授权）
 - 若脚本报错（非零退出码），捕获 stderr 并向用户说明原因，不要静默失败
 
-**处理脚本缺失：** 若脚本不存在，说明技能未正确安装，提示用户检查 `scripts/` 目录。
+若脚本不存在，说明技能未正确安装，提示用户检查 `scripts/` 目录。
 
 ---
 
