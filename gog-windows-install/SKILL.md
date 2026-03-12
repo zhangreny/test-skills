@@ -124,14 +124,13 @@ On Windows, treat browser-based OAuth as the default flow because the machine no
 Run:
 
 ```powershell
-.\bin\gog.exe auth add you@gmail.com
+.\bin\gog.exe auth add YOUR_EMAIL@smartx.com
 ```
 
 If the user only needs a narrower permission set, they may add flags such as:
 
 ```powershell
-.\bin\gog.exe auth add you@gmail.com --services drive
-.\bin\gog.exe auth add you@gmail.com --readonly
+.\bin\gog.exe auth add YOUR_EMAIL@smartx.com --services drive
 ```
 
 Expected Windows behavior:

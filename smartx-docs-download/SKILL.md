@@ -1,95 +1,64 @@
 ---
 name: smartx-docs-download
-description: 爬取 SmartX 内部文档站（internal-docs.smartx.com）的文档索引，并用 Playwright 打开文档页面，递归展开左侧导航、逐项点击目录、抓取右侧正文和表格并导出为 Markdown。适用于需要批量获取 SmartX 内部文档链接、离线保存文档正文、或把站点内容转换为可搜索的 md 文件时使用。
+description: Use when SmartX internal documentation needs to be crawled, refreshed, or searched locally. This skill builds a docs index from internal-docs.smartx.com, exports documents to local Markdown, and helps other skills read the generated corpus from markdown_docs/ on demand.
 ---
 
 # SmartX Docs Download
 
-## 概述
+## Quick Start
 
-这个 skill 提供两个脚本：
+Use this skill when the task is about SmartX internal docs as a local knowledge source instead of a one-off web browse.
 
-1. `scripts/crawl_doc_index.py`
-用于访问文档站首页，解析所有产品/版本文档入口，生成 `doc_index.json`。
+Prefer this order:
+1. If `markdown_docs/` already contains the needed documents, search and read those files directly.
+2. If the local export is missing, stale, or incomplete, rebuild the index and re-export the docs with the bundled scripts.
+3. Read only the specific exported Markdown files needed for the current task.
 
-2. `scripts/download_docs.py`
-用于读取 `doc_index.json`，打开每个文档页面，展开左侧目录树，逐节抓取右侧正文，导出为 Markdown。
+## Use When
 
-## 环境要求
+Use this skill when the user wants to:
+1. Batch export SmartX internal docs to local Markdown.
+2. Refresh an existing local docs corpus from `internal-docs.smartx.com`.
+3. Find product guides, release notes, whitepapers, CLI references, or terminology docs in `markdown_docs/`.
+4. Let another skill consume SmartX supplemental documentation from a local folder instead of browsing live pages.
 
-- Python `3.9`
-- 本机已安装 Google Chrome
-- 可访问 `https://internal-docs.smartx.com`
+## Do Not Use When
 
-## 安装依赖
+Do not use this skill when:
+1. The task is unrelated to SmartX internal documentation.
+2. The user already provided the exact local Markdown files and no refresh is needed.
+3. A normal website lookup is enough and no local export or repeatable corpus is required.
 
-```bash
-pip install -r scripts/requirements.txt
-playwright install chrome
-```
+## Workflow
 
-## 使用流程
+1. Confirm whether the task needs existing local docs or a fresh export.
+2. If local docs already exist, search `markdown_docs/` first with focused filename or content queries before opening files.
+3. If export is needed, follow `references/workflow.md` to:
+   - install dependencies
+   - run `scripts/crawl_doc_index.py`
+   - run `scripts/download_docs.py`
+4. After export, report the output location and read only the Markdown files relevant to the current task.
+5. If another skill depends on this corpus, pass along concrete file paths or search results rather than summarizing the whole corpus.
 
-### 1. 构建文档索引
+## Output
 
-```bash
-python scripts/crawl_doc_index.py
-```
+When this skill is used, prefer one of these outputs:
+1. A short status summary of whether local docs were reused or refreshed.
+2. The specific file paths or filenames that are relevant to the task.
+3. If export failed, the blocking dependency or script error and the next recovery step.
 
-脚本默认在自身目录生成 `doc_index.json`。
+## Quality Check
 
-### 2. 抓取文档并导出 Markdown
+Before finishing, verify:
+1. You reused `markdown_docs/` when it was already sufficient instead of rerunning expensive crawling unnecessarily.
+2. You read only the files relevant to the active task.
+3. You kept script-running instructions out of the main answer unless they were needed.
+4. You clearly distinguished between bundled scripts and generated outputs.
+5. You treated `markdown_docs/` and `doc_index.json` as local run artifacts, not core skill instructions.
 
-```bash
-python scripts/download_docs.py
-```
+## Additional Resources
 
-默认行为：
-
-- 从同目录 `doc_index.json` 读取文档链接
-- 将抓取结果输出到同目录下的 `markdown_docs/`
-- 一个文档生成一个 `.md` 文件
-
-常用参数：
-
-```bash
-python scripts/download_docs.py -i doc_index.json -o markdown_docs
-python scripts/download_docs.py --match "配置和管理规格" --limit 1
-```
-
-## 关键实现
-
-### 左侧导航抓取
-
-脚本不会点击“下载 PDF”，而是：
-
-- 定位左侧导航 `nav._1iv8wwv2`
-- 对带子分类的目录项先点击展开按钮 `div._1iv8wwv6`
-- 展开后重新扫描目录，避免因为 DOM 重渲染漏抓子项
-- 只对实际链接 `a._1iv8wwvb[href]` 执行点击
-
-### 正文提取
-
-右侧正文从 `data-docs-content="true"` 容器读取，保留：
-
-- 标题
-- 段落
-- 列表
-- 表格
-
-HTML 会通过 `markdownify` 转为 Markdown。
-
-## 输出和仓库约定
-
-- `doc_index.json` 和 `markdown_docs/` 都是运行产物
-- 默认只在本地使用，不应提交到 skill 仓库
-- 提交 skill 仓库时，只同步脚本和必要元数据
-
-## 常见问题
-
-| 问题 | 原因 | 处理方式 |
-|------|------|----------|
-| 左侧子分类漏抓 | 展开后导航重渲染 | 重新扫描导航树后继续遍历 |
-| 正文没有变化 | 页面切换较慢 | 适当增加等待时间 |
-| Chrome 未找到 | 本机未安装 Chrome | 执行 `playwright install chrome` |
-| 依赖缺失 | 未安装 `markdownify` / `playwright` | 重新执行 `pip install -r scripts/requirements.txt` |
+- Workflow, commands, outputs, and troubleshooting: [references/workflow.md](references/workflow.md)
+- Exported local docs corpus: [markdown_docs](markdown_docs)
+- Index builder: [scripts/crawl_doc_index.py](scripts/crawl_doc_index.py)
+- Markdown exporter: [scripts/download_docs.py](scripts/download_docs.py)

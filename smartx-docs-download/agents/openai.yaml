@@ -1,4 +1,4 @@
 interface:
-  display_name: "SmartX Docs Markdown"
-  short_description: "Crawl SmartX internal docs and export Markdown by navigation"
-  default_prompt: "Crawl SmartX internal documentation and export each document to Markdown by traversing the left navigation"
+  display_name: "SmartX Docs Download"
+  short_description: "Refresh or search a local Markdown export of SmartX internal docs"
+  default_prompt: "Refresh SmartX internal documentation into local Markdown when needed, otherwise search the existing markdown_docs corpus and open only the relevant files"
