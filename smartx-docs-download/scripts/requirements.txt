@@ -1,0 +1,9 @@
+# SmartX Docs Download - Python 3.9
+# 安装: pip install -r requirements.txt
+# Playwright 还需额外安装浏览器: playwright install chrome
+
+python==3.9.23
+requests==2.32.3
+beautifulsoup4==4.14.3
+playwright==1.50.0
+markdownify==1.1.0

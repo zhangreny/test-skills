@@ -1,0 +1,4 @@
+interface:
+  display_name: "GOG Windows Install"
+  short_description: "Install and build gogcli on Windows using git and Go only."
+  default_prompt: "Use $gog-windows-install to install and build gogcli on Windows without make."

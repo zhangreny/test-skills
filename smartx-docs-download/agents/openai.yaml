@@ -1,0 +1,4 @@
+interface:
+  display_name: "SmartX Docs Markdown"
+  short_description: "Crawl SmartX internal docs and export Markdown by navigation"
+  default_prompt: "Crawl SmartX internal documentation and export each document to Markdown by traversing the left navigation"
