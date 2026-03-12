@@ -1,139 +1,192 @@
 ---
 name: gog-linux-installer
-description: |
-  在 CentOS/RHEL 8 Linux 服务器上安装 Homebrew 和 gog (Google Workspace CLI) 的完整步骤。
-  适用于无 UI 的 Linux 服务器环境。
-  当用户需要在 Linux 服务器上安装 gog 工具时触发。
+description: Use when the user wants to install gogcli on a headless CentOS/RHEL 8 Linux server. This skill covers a Linux-first workflow that installs Homebrew, installs gog from the steipete tap, and completes Google OAuth on a server without a local browser UI.
 ---
 
-# gog Linux Installer
+# Gog Linux Installer
 
-在 CentOS/RHEL 8 上安装 Homebrew 和 gog 的完整指南。
+## Overview
 
-## 概述
+This skill installs `gogcli` on a headless CentOS/RHEL 8 server with Homebrew.
+Use it when the user wants a practical server workflow that:
 
-本 Skill 包含在 Linux 服务器（特别是 CentOS/RHEL 8）上安装 gog 的完整步骤，包括：
-- 创建非 root 用户
-- 安装 Homebrew (Linuxbrew)
-- 安装 gog
-- 配置 Google OAuth 认证
+- runs on Linux without a desktop UI
+- installs Homebrew before installing `gog`
+- handles Google OAuth from another machine through SSH port forwarding
 
-## 安装步骤
+## Workflow
 
-### 1. 创建非 root 用户
+### 1. Confirm the environment
+
+Check the OS, current user, and the basic tools needed for bootstrap:
 
 ```bash
-sudo adduser smartx
+cat /etc/os-release
+uname -a
+whoami
+sudo -V
+curl --version
+git --version
 ```
 
-### 2. 授予 sudo 权限
+Interpretation:
+
+- Continue when the machine is CentOS 8, RHEL 8, or a close equivalent.
+- If `sudo`, `curl`, or `git` is missing, install them first.
+- Prefer a non-root user for Homebrew installation.
+
+Install missing prerequisites if needed:
 
 ```bash
+sudo dnf install -y curl git tar
+```
+
+If `dnf` is unavailable, try:
+
+```bash
+sudo yum install -y curl git tar
+```
+
+### 2. Create or reuse a non-root user
+
+If the server does not already have a suitable working user, create one and grant sudo access:
+
+```bash
+sudo useradd -m smartx
 sudo usermod -aG wheel smartx
+sudo passwd smartx
 ```
 
-### 3. 设置用户密码
+Notes:
 
-```bash
-echo "HC!r0cks" | sudo passwd --stdin smartx
-```
+- Do not hardcode a password in the skill workflow.
+- If a suitable non-root user already exists, reuse it instead of creating `smartx`.
 
-### 4. 切换到 smartx 用户并安装 Homebrew
+### 3. Switch to the working user
+
+Use a login shell for the target user before installing Homebrew:
 
 ```bash
 su - smartx
+```
+
+### 4. Install Homebrew
+
+Run the official installer:
+
+```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-### 5. 设置 brew 环境变量
+On Linux, Homebrew normally installs to:
+
+`/home/linuxbrew/.linuxbrew`
+
+### 5. Load the Homebrew environment
+
+Append the shell setup for future sessions and load it in the current shell:
 
 ```bash
-echo >> /home/smartx/.bashrc
-echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >> /home/smartx/.bashrc
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
+echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+brew --version
 ```
 
-### 6. 安装 gog
+If the user uses another shell, adapt the profile file instead of `.bashrc`.
+
+### 6. Install gog from Homebrew
+
+Install the tap package:
 
 ```bash
 brew install steipete/tap/gogcli
 ```
 
-### 7. 创建 root 软链接（可选）
-
-使 root 用户也能使用 gog：先切回 root，再创建软链接。
+Verify the binary is available:
 
 ```bash
-exit   # 从 smartx 会话切回 root
-ln -s /home/linuxbrew/.linuxbrew/bin/gog /usr/local/bin/gog
+which gog
+gog version
+gog --help
 ```
 
-### 8. 配置 Google OAuth 凭证
+Successful verification means:
 
-1. 访问 https://console.cloud.google.com/apis/credentials 创建 OAuth 凭证
-2. 下载客户端 Secret JSON 文件
-3. 执行授权：
+- `which gog` resolves to the Homebrew binary
+- `gog version` prints version information
+- `gog --help` shows top-level commands instead of failing
+
+### 7. Optionally expose gog system-wide
+
+If the user wants `root` or other accounts to call `gog` without loading the Homebrew shellenv, create a symlink:
 
 ```bash
-gog auth credentials /path/client_secret_xxx.json
+sudo ln -sf /home/linuxbrew/.linuxbrew/bin/gog /usr/local/bin/gog
 ```
 
-### 9. 添加账户和服务
+Only do this when the user actually wants a global path.
+
+### 8. Configure Google OAuth credentials
+
+Before adding an account, the user needs a Google OAuth desktop-app client.
+
+Guide them through:
+
+1. Open Google Cloud Console credentials.
+2. Create or choose a project.
+3. Enable the APIs they plan to use, such as Drive, Gmail, Calendar, Docs, or Sheets.
+4. Configure the OAuth consent screen if required.
+5. Create an OAuth client with application type `Desktop app`.
+6. Download the client secret JSON file to the server.
+
+Store the credentials with:
+
+```bash
+gog auth credentials /path/to/client_secret.json
+```
+
+### 9. Add the Google account on a headless server
+
+Start the auth flow:
 
 ```bash
 gog auth add yourname@smartx.com --services drive
 ```
 
-#### 无 UI 服务器 OAuth 认证
+Expected headless behavior:
 
-如果是在无 UI 的 Linux 服务器上，需要通过本地浏览器完成 OAuth 认证：
+- `gog` prints a Google authorization URL
+- after login, Google redirects to `http://127.0.0.1:PORT/oauth2/callback?...`
+- the server is waiting locally on that callback port
 
-##### 步骤
+To complete the callback from another machine with a browser:
 
-1. **复制认证 URL 在本机上处理**
+1. Run `gog auth add ...` on the server and copy the printed authorization URL.
+2. Open the URL on your local machine and sign in to Google.
+3. Note the callback URL and its `PORT`.
+4. From your local machine, create an SSH tunnel to the Linux server:
 
-   运行 `gog auth add` 命令后会返回一个 OAuth 授权 URL，复制到你的本机（Mac/Linux）访问和授权 Google
-   会跳转到到 http://127.0.0.1:<PORT>/oauth2/callback?state=... 这种 url，请记录这个 Port
+```bash
+ssh -L PORT:127.0.0.1:PORT user@server-host
+```
 
-2. **本地根据端口号执行 SSH 隧道**
+5. With the tunnel still open, load the callback URL in the local browser so the request reaches the server.
 
-   在你的本机（Mac/Linux）上执行：
+If the user only needs a narrower scope, change the `--services` value accordingly.
 
-   ```bash
-   ssh -L <PORT>:127.0.0.1:<PORT> root@linux服务器IP
-   ```
+### 10. Verify authentication
 
-3. **本机浏览器刷新认证后页面**
-
-   在本机浏览器刷新一下 http://127.0.0.1:<PORT>/oauth2/callback?state=... 的页面（SSH 隧道会将请求转发到服务器）
-
-4. **完成认证**
-
-   在浏览器中完成 Google 账号授权后，服务器端会自动接收验证结果
-
-### 10. 验证安装
+After auth succeeds, run a harmless command for the enabled service:
 
 ```bash
 gog drive search "周报" --max 10
 ```
 
-## 常见问题
+## Guidance
 
-### Homebrew 安装失败
-
-- 确保系统已安装依赖：`sudo yum install curl git`
-- 可能需要先安装 Developer Tools
-
-### OAuth 认证失败
-
-- 确认 OAuth 凭证的 redirect URI 配置正确
-- 检查 SSH 隧道是否正常建立
-- 确认端口号一致
-
-### 权限问题
-
-- 确保 smartx 用户对 ~/.gog 目录有写权限
-
----
-
-*参考来源：gog 官方文档 + CentOS 8 实测*
+- Prefer executing the workflow instead of only describing it when the user asks you to install.
+- Keep the explanation short unless the user asks for more detail.
+- On Linux, default to the headless OAuth flow when the machine has no browser UI.
+- If the user is already on a non-root working account, skip the user-creation step.
+- If a command fails, report the exact blocker and continue with the narrowest fix.
+- If Homebrew install fails because of missing build dependencies, install the missing packages first instead of switching workflows immediately.
