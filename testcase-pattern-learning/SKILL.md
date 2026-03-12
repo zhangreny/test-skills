@@ -1,85 +1,76 @@
 ---
 name: testcase-pattern-learning
-description: Extracts reusable testcase design rules from historical TestRail cases and grouped markdown exports. Use when the user wants to study old testcase style, summarize naming and granularity patterns, review grouped suite exports, or derive coverage and anti-pattern guidance for writing new testcases.
+description: Extract reusable testcase-writing rules from historical TestRail cases or grouped markdown exports. Use when the user wants to study old testcase style, summarize naming or granularity patterns, review grouped suite exports, or derive reusable guidance for writing new testcases.
+metadata:
+  short-description: Learn reusable testcase-writing patterns from historical cases
 ---
 
 # Testcase Pattern Learning
 
-## Quick Start
+Use this skill to turn historical testcases into reusable testcase-writing guidance.
+The goal is to produce generalized rules, not a suite-by-suite recap.
 
-Use this skill to turn old testcases into reusable testcase-writing rules instead of restating old cases one by one.
+## Use This Skill When
 
-Use it when the user wants to:
-1. 总结旧测试用例写法。
-2. 从 TestRail 导出结果里学习规律。
-3. 按项目或 suite 学习，而不是阅读一个超大导出文件。
-4. 整理后续写新 feature 用例可复用的方法论。
+- The user wants to learn how older testcases are named, split, or organized.
+- The user wants coverage guidance from historical TestRail exports.
+- The user wants reusable testcase design rules for a new feature.
+- The user provides grouped markdown exports and asks for patterns, style, or anti-patterns.
 
-## Instructions
+## Default Workflow
 
-按下面顺序执行：
-1. 先确认历史用例来源，优先复用已有导出脚本或现成导出目录。
-2. 默认使用按项目和 suite 拆分的目录版导出，不优先使用单个大文件。
-3. 先缩小范围，再看结构，再看标题，最后提炼规则。
-4. 最终输出规则文档，而不是阅读笔记或 suite 流水账。
+1. Confirm the source.
+   Prefer an existing export script or an existing grouped export directory before writing new export logic.
+2. Prefer grouped markdown exports.
+   Use project and suite scoped markdown files instead of a single giant export whenever possible.
+3. Narrow the scope first.
+   Start with one project, one suite, or one subdomain before scaling up.
+4. Read structure before details.
+   Inspect section and subsection organization first, then sample titles and case granularity.
+5. Stop when patterns stabilize.
+   Do not read the full corpus if new samples only repeat known rules.
+6. Output reusable rules.
+   Summarize naming, testcase splitting, granularity, coverage dimensions, and anti-patterns.
 
-如果仓库里存在 `export_testrail_cases.py`，优先检查并复用它。
+## Open References On Demand
 
-默认命令：
+- [references/workflow.md](references/workflow.md): detailed workflow, sampling, and stop conditions.
+- [references/learning-rules.md](references/learning-rules.md): what rules to extract from historical cases.
+- [references/output-template.md](references/output-template.md): default output structure for the final write-up.
+- [references/examples.md](references/examples.md): good and bad examples of analysis output.
+- [references/sdn-sample.md](references/sdn-sample.md): entrypoint for a longer domain-specific sample.
+- [scripts/export_testrail_cases.py](scripts/export_testrail_cases.py): reusable exporter for grouped markdown output.
+
+## Export Guidance
+
+If the repository already includes `scripts/export_testrail_cases.py`, reuse it before creating new export code.
+
+Recommended command:
 
 ```bash
-python scripts/export_testrail_cases.py --days 365 --output-dir testcase_tutorail_of_groups
+python scripts/export_testrail_cases.py --days 365 --output-dir testrail_cases_by_group
 ```
 
-默认目录结构：
+Expected directory shape:
 
 ```text
-testcase_tutorail_of_groups/
+testrail_cases_by_group/
   <project>/
     <suite>.md
 ```
 
-## Output Template
+## Output Rules
 
-最终总结默认使用下面结构：
+- Deliver rules, not a chronological recap.
+- Keep conclusions reusable across products when possible.
+- Explicitly cover granularity, coverage dimensions, and failure or recovery scenarios.
+- Call out anti-patterns that should not be copied into new testcase design.
 
-```markdown
-## 命名规律
-- [标题通常如何组织]
+## Quality Bar
 
-## 测试点拆分规律
-- [一个 feature 通常如何拆点]
+Before finishing, check that:
 
-## 粒度规律
-- [一条 case 的理想粒度]
-
-## 覆盖维度
-- [默认应补的维度]
-
-## 反模式
-- [应避免的坏味道]
-```
-
-总结应能回答：
-1. 旧用例通常怎么命名。
-2. 一个 feature 通常怎么拆测试点。
-3. 一条 case 的理想粒度是什么。
-4. 哪些覆盖维度默认要补。
-5. 哪些坏味道要避免。
-
-## Quality Check
-
-完成前检查：
-1. 是否优先使用了目录化导出。
-2. 是否先看结构再看细节内容。
-3. 是否输出了规则，而不是旧用例流水账。
-4. 是否明确提到了粒度、覆盖维度、异常与恢复。
-5. 是否保持结论可泛化，而不是只适用于单一产品。
-
-## Additional Resources
-
-- 执行流程见 [references/workflow.md](references/workflow.md)
-- 提炼框架见 [references/learning-rules.md](references/learning-rules.md)
-- 正反例见 [references/examples.md](references/examples.md)
-- SDN 长样例见 [tutorial-all-groups/sdn.md](tutorial-all-groups/sdn.md)
-- 导出脚本见 [scripts/export_testrail_cases.py](scripts/export_testrail_cases.py)
+1. The analysis used grouped exports or an equally structured source.
+2. The write-up inspected structure before reading many case details.
+3. The final output is a rule set, not a suite-by-suite summary.
+4. The guidance is reusable for future testcase design.

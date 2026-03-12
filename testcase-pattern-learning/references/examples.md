@@ -1,69 +1,76 @@
 # Examples
 
-这个文件只保留正反例，不再重复工作流和规则定义。
+This file keeps only examples. It does not repeat the workflow or rule definitions.
 
-## 完整长样例
+## Full sample
 
-如果需要一份完整的规则文档样例，直接看：
+If the user wants a longer rule document example, open:
 
-- [../tutorial-all-groups/sdn.md](../tutorial-all-groups/sdn.md)
+- [sdn-sample.md](sdn-sample.md)
 
-## 示例 1：用户要学习旧用例规律
+## Example 1: the user wants historical writing patterns
 
-用户意图：
-“不要把几万个用例全看完，帮我总结旧用例的写法规律。”
+User intent:
 
-合适输出：
-1. 先缩到一个项目或一个 suite。
-2. 先看结构，再看标题。
-3. 最后输出命名、粒度、覆盖维度、反模式总结。
+"Do not read tens of thousands of cases. Summarize the writing patterns from older testcases."
 
-不合适输出：
-1. 直接全文阅读。
-2. 按 suite 流水账复述。
+Good response shape:
 
-## 示例 2：用户要导出历史用例
+1. Narrow to one project or one suite first.
+2. Read structure before titles.
+3. Output naming, granularity, coverage, and anti-pattern rules.
 
-用户意图：
-“把 TestRail 的结果导出来，按组放好，后面我还要学习。”
+Bad response shape:
 
-合适输出：
-1. 先看项目里有没有 `export_testrail_cases.py`。
-2. 优先复用现有脚本。
-3. 导出到 `testcase_tutorail_of_groups/`。
-4. 一个 suite 一个 `md` 文件。
+1. Read the full corpus immediately.
+2. Retell cases one by one in suite order.
 
-不合适输出：
-1. 默认只生成一个超大文件。
-2. 不保留项目和 suite 层级。
+## Example 2: the user wants grouped exports first
 
-## 示例 3：好总结
+User intent:
 
-```markdown
-## 命名规律
-1. 标题包含对象、条件、结果。
-2. 常见句式是 `[对象] - [条件] - [结果]`。
+"Export historical TestRail cases into grouped markdown so we can study them later."
 
-## 粒度规律
-1. 一条 case 只验证一个核心结果。
-2. 跨 UI、日志、配置、功能结果时应拆条。
+Good response shape:
 
-## 覆盖维度
-1. 主流程。
-2. 失败路径。
-3. 对象差异。
-4. 状态变化。
-5. 故障恢复。
-```
+1. Check whether `export_testrail_cases.py` already exists.
+2. Reuse the existing exporter.
+3. Export to `testrail_cases_by_group/`.
+4. Keep one markdown file per suite.
 
-## 示例 4：坏总结
+Bad response shape:
+
+1. Generate only one giant markdown file.
+2. Lose the project and suite hierarchy.
+
+## Example 3: good summary
 
 ```markdown
-这个 suite 第一条是 A，第二条是 B，第三条是 C。
-这些用例都在测功能，整体看起来差不多。
+## Naming Pattern
+- Titles usually include object, condition, and result.
+- A common shape is `[object] - [condition] - [result]`.
+
+## Granularity Pattern
+- One case should validate one core result.
+- Split the case when it mixes UI, logs, config, and functional result.
+
+## Coverage Dimensions
+- Main flow
+- Failure path
+- Object variation
+- State change
+- Fault recovery
 ```
 
-问题：
-1. 不能复用。
-2. 没有抽象出规则。
-3. 不能指导新 feature 的测试设计。
+## Example 4: bad summary
+
+```markdown
+This suite starts with case A, then case B, then case C.
+Most cases seem to test the feature and look similar.
+```
+
+Why it is bad:
+
+1. It is not reusable.
+2. It does not abstract rules.
+3. It does not help design new testcases.

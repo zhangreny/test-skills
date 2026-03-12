@@ -1,73 +1,81 @@
 # Workflow
 
-这个文件只回答一件事：拿到历史用例后，按什么顺序分析。
+This file answers one question: in what order should historical testcase sources be analyzed?
 
-## Step 1：确认来源
+## Step 1: Confirm the source
 
-按以下优先级处理：
-1. 先复用当前仓库已有导出脚本。
-2. 再复用当前仓库已有导出目录。
-3. 两者都没有时，再补导出逻辑。
+Use this priority order:
 
-如果仓库里存在 `export_testrail_cases.py`，优先检查它。
+1. Reuse an existing export script in the repo.
+2. Reuse an existing grouped export directory.
+3. Only add export logic if neither of the above exists.
 
-## Step 2：使用目录版导出
+If the repo already contains `export_testrail_cases.py`, inspect and reuse it first.
 
-默认目标结构：
+## Step 2: Prefer grouped exports
+
+Default target structure:
 
 ```text
-testcase_tutorail_of_groups/
+testrail_cases_by_group/
   <project>/
     <suite>.md
 ```
 
-要求：
-1. 一个 suite 一个 Markdown 文件。
-2. 保留项目分组。
-3. 保留 section 和 subsection 层级。
-4. 不默认依赖一个汇总大文件。
+Requirements:
 
-## Step 3：缩小范围
+1. One suite per markdown file.
+2. Preserve project grouping.
+3. Preserve section and subsection hierarchy.
+4. Do not default to one giant summary file.
 
-先选一个最小可分析单元：
-1. 一个项目。
-2. 一个 suite。
-3. 一个子领域。
+## Step 3: Narrow the scope
 
-不要一开始就扫完整库。
+Start with the smallest useful analysis unit:
 
-## Step 4：先看结构，再看标题
+1. One project.
+2. One suite.
+3. One subdomain.
 
-先看结构：
-1. section 如何分。
-2. subsection 如何分。
-3. 组织方式偏功能、生命周期、矩阵、故障还是页面。
+Do not scan the entire corpus first.
 
-再看标题：
-1. 标题句式。
-2. 单条 case 覆盖几个点。
-3. 成功和失败是否成对。
-4. 是否显式写前置条件和结果。
+## Step 4: Read structure before titles
 
-## Step 5：抽样并停止
+Inspect structure first:
 
-默认抽样方式：
-1. 先看一个 suite 的整体结构。
-2. 再看约 20 条代表性 case。
-3. 规律不稳定时，再扩到 50 条左右。
+1. How sections are grouped.
+2. How subsections are grouped.
+3. Whether the structure is organized by feature, lifecycle, matrix, fault mode, or UI area.
 
-满足以下条件即可停止继续加样本：
-1. 标题句式已经稳定。
-2. 覆盖维度已经重复出现。
-3. 粒度规律已经明显。
-4. 新 case 只是重复旧规律。
+Then inspect titles:
 
-## Step 6：输出规则文档
+1. Title sentence patterns.
+2. How many checkpoints a single case covers.
+3. Whether success and failure paths appear in pairs.
+4. Whether preconditions and results are stated explicitly.
 
-最终输出至少包括：
-1. 组织方式。
-2. 命名规律。
-3. 测试点拆分规律。
-4. 粒度规律。
-5. 覆盖维度。
-6. 反模式。
+## Step 5: Sample, then stop
+
+Default sampling sequence:
+
+1. Read the overall structure of one suite.
+2. Read about 20 representative cases.
+3. Expand to about 50 cases only if the pattern is still unstable.
+
+Stop increasing sample size when:
+
+1. Title patterns are stable.
+2. Coverage dimensions repeat consistently.
+3. Granularity rules are obvious.
+4. New cases only repeat known patterns.
+
+## Step 6: Write the rule document
+
+The final output should include at least:
+
+1. Organization pattern.
+2. Naming pattern.
+3. Test point splitting pattern.
+4. Granularity pattern.
+5. Coverage dimensions.
+6. Anti-patterns.

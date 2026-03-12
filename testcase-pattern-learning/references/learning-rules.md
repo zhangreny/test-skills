@@ -1,85 +1,94 @@
 # Learning Rules
 
-这个文件只回答一件事：从历史用例里优先提炼哪些规则。
+This file answers one question: what rules should be extracted first from historical testcases?
 
-## 1. 命名规律
+## 1. Naming pattern
 
-高质量标题通常同时包含：
-1. 测试对象。
-2. 关键条件。
-3. 预期结果。
+High quality titles usually include:
 
-推荐句式：
-1. `[对象/路径] - [条件] - [结果]`
-2. `[页面/入口] - [能力点] - [结果]`
-3. `[资源条件] - [动作] - [结果]`
-4. `[故障动作] - [观察对象] - [恢复结果]`
+1. The test object.
+2. A key condition.
+3. The expected result.
 
-避免：
-1. 功能测试
-2. 验证正常
-3. 综合场景
-4. 其他测试
+Recommended title shapes:
 
-## 2. 测试点拆分
+1. `[object or path] - [condition] - [result]`
+2. `[page or entry] - [capability] - [result]`
+3. `[resource condition] - [action] - [result]`
+4. `[fault action] - [observed object] - [recovery result]`
 
-提炼测试点时优先问：
-1. feature 的核心能力是什么。
-2. 哪些条件变化会导致结果变化。
-3. 结果体现在哪一层。
-4. 哪些失败路径必须覆盖。
-5. 是否存在生命周期动作。
+Avoid vague titles such as:
 
-常见测试点类别：
-1. 主流程。
-2. 对象或参数差异。
-3. 边界情况。
-4. 异常输入或错误配置。
-5. 状态切换。
-6. 故障恢复。
-7. 展示与观测。
-8. 资源约束。
-9. 升级兼容。
-10. 历史问题回归。
+1. Feature test
+2. Verify normal flow
+3. Comprehensive scenario
+4. Other test
 
-## 3. 粒度规则
+## 2. Test point splitting
 
-一条 case 的理想粒度：
-1. 一个明确条件。
-2. 一个明确对象。
-3. 一个明确动作。
-4. 一个核心结果。
+When extracting test points, ask:
 
-需要拆条的信号：
-1. 一个标题里有多个并列结果。
-2. 同时验证 UI、日志、配置、转发多个层面。
-3. 同时覆盖多个对象类型。
-4. 同时覆盖多个协议或路径。
-5. 同时覆盖多个生命周期动作。
-6. 同时写成功和失败。
+1. What is the core capability of the feature?
+2. Which conditions change the result?
+3. At which layer does the result appear?
+4. Which failure paths are mandatory?
+5. Are there lifecycle actions to cover?
 
-## 4. 覆盖维度
+Common test point categories:
 
-优先检查这些通用维度：
-1. 主流程。
-2. 失败路径。
-3. 对象差异。
-4. 参数差异。
-5. 生命周期动作。
-6. 状态变化。
-7. 展示或报表。
-8. 日志或计数。
-9. 故障与恢复。
-10. 升级与兼容。
-11. 资源限制。
-12. 历史问题回归。
+1. Main flow
+2. Object or parameter variation
+3. Boundary behavior
+4. Invalid input or bad configuration
+5. State transition
+6. Fault recovery
+7. Display and observability
+8. Resource constraint
+9. Upgrade or compatibility
+10. Regression from historical issues
 
-## 5. 反模式
+## 3. Granularity rules
 
-常见坏味道：
-1. 标题只有动作，没有结果。
-2. 一条 case 验证太多点。
-3. 只写 happy path，不写失败路径。
-4. 只看 UI，不看真实生效。
-5. 直接堆旧用例标题，不做抽象。
-6. 总结只对一个产品有效，无法复用到其他领域。
+An ideal single case usually contains:
+
+1. One clear condition
+2. One clear object
+3. One clear action
+4. One core result
+
+Split a case when:
+
+1. One title implies multiple independent results.
+2. It validates UI, logs, configuration, and forwarding all at once.
+3. It covers multiple object types in one case.
+4. It mixes multiple protocols or paths.
+5. It mixes multiple lifecycle actions.
+6. It combines success and failure into one case.
+
+## 4. Coverage dimensions
+
+Check these common dimensions first:
+
+1. Main flow
+2. Failure path
+3. Object variation
+4. Parameter variation
+5. Lifecycle action
+6. State change
+7. Display or reporting
+8. Logs or counters
+9. Fault and recovery
+10. Upgrade and compatibility
+11. Resource limits
+12. Historical regression
+
+## 5. Anti-patterns
+
+Common bad smells:
+
+1. The title contains only an action and no result.
+2. One case validates too many points.
+3. Only happy path is covered.
+4. The analysis only checks UI and not real effectiveness.
+5. Old case titles are copied without abstraction.
+6. The final rules only work for one product and cannot generalize.

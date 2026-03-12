@@ -289,8 +289,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--output-dir",
-        default="testcase_tutorail_of_groups",
-        help="按 项目目录/suite.md 的方式拆分导出（默认 testcase_tutorail_of_groups）"
+        default="testrail_cases_by_group",
+        help="按 项目目录/suite.md 的方式拆分导出（默认 testrail_cases_by_group）"
     )
     args = parser.parse_args()
     export(
