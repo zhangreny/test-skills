@@ -10,7 +10,7 @@
 
 ```bash
 cd /path/to/your-agent/skills
-git clone <this-repo-url>
+git clone https://newgh.smartx.com/renyu-zhang/skills-for-Smartx_QA_AI
 ```
 
 如果你的 agent 工具要求 skills 必须直接位于某个固定目录下，请确保本项目被克隆后，`testcase-generate`、`smartx-doc-2-product-and-keywords`、`all-related-file-preparer-4-testcase-generate` 等目录都能被 agent 正确发现。
