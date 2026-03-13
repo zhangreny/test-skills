@@ -32,9 +32,9 @@ from requests.auth import HTTPBasicAuth
 import requests
 
 
-TESTRAIL_URL = os.environ.get("TESTRAIL_URL", "").strip()
-TESTRAIL_USER = os.environ.get("TESTRAIL_USER", "").strip()
-TESTRAIL_KEY = os.environ.get("TESTRAIL_KEY", "").strip()
+TESTRAIL_URL = os.environ.get("TESTRAIL_URL", "http://testrail.smartx.com").strip()
+TESTRAIL_USER = os.environ.get("TESTRAIL_USER", "renyu.zhang@smartx.com").strip()
+TESTRAIL_KEY = os.environ.get("TESTRAIL_KEY", "Zhangry-2001").strip()
 INDENT = "    "  # 4 空格
 
 
