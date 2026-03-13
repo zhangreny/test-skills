@@ -51,15 +51,12 @@ python3 --version
 
 不同系统安装方式如下：
 
-- macOS：直接使用 Homebrew 安装，例如 `brew install gog`
-- Windows：参考 [gog-windows-install](C:/Users/27845/.codex/skills/gog-windows-install/SKILL.md)
-- Linux：参考 [gog-linux-installer](C:/Users/27845/.codex/skills/gog-linux-installer/SKILL.md)
+- macOS：需要手动执行安装命令，例如 `brew install steipete/tap/gogcli`
+- Windows：调用 skills [gog-windows-install](C:/Users/27845/.codex/skills/gog-windows-install/SKILL.md)
+- Linux：调用 skills [gog-linux-installer](C:/Users/27845/.codex/skills/gog-linux-installer/SKILL.md)
 
-安装完成后，建议再确认：
-
-- `gog` 命令可执行
-- 已完成 Google 账号授权
-- 当前账号具备目标 Google Drive 文件的访问权限
+其中，Windows 和 Linux 的 `gog` 安装流程已经封装成 skill，通常可以直接让 agent 工具执行。`gog auth credentials` 和 `gog auth add` 也属于这两个 skill 的流程范围；如果过程中需要 Google 登录授权、浏览器确认或其他必须由用户亲自完成的步骤，再由 agent 在中途返回提示用户操作，完成后继续后续步骤。
+macOS 这两步需要在安装完 gog 后手动操作，具体文件如何获取可参考 gog-windows-install/SKILL.md 的 Step6 & Step7
 
 ## 3. 在 agent 工具中调用 `testcase-generate`
 
