@@ -4,11 +4,13 @@
 
 ## 1. 将本项目克隆到 agent 工具的 skills 目录
 
-1.1 自动操作：直接告诉 agent 工具
+### 1.1 自动操作
 
 将 https://newgh.smartx.com/renyu-zhang/skills-for-Smartx_QA_AI 内的所有子文件夹放到你的 skills 目录下
 
-1.2 手动操作：先找到你的 agent 工具本地 skills 目录，然后将本项目克隆进去。
+### 1.2 手动操作
+
+先找到你的 agent 工具本地 skills 目录，然后将本项目克隆进去。
 
 示例：
 
