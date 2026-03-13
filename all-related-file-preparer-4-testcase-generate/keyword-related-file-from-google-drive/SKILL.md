@@ -9,7 +9,7 @@ description: 根据文档分析结果中的描述摘要和关键词，在 Google
 
 ## 前置条件
 
-本技能依赖位于技能目录 `scripts/drive_search_by_keywords.py` 的脚本。执行前先确认脚本存在；若脚本缺失，直接提示技能安装不完整并停止。
+本技能优先依赖位于技能目录 `scripts/drive_search_by_keywords.py` 的脚本。执行前先确认脚本存在；若脚本缺失，直接改用 `gog drive search` 命令行执行搜索，不要立即停止。
 
 ---
 
@@ -49,7 +49,7 @@ description: 根据文档分析结果中的描述摘要和关键词，在 Google
 
 ### 步骤 3：执行搜索
 
-使用技能目录下的脚本批量搜索，脚本内部会自动处理关键词中的特殊字符（单引号、反斜杠等）：
+优先使用技能目录下的脚本批量搜索，脚本内部会自动处理关键词中的特殊字符（单引号、反斜杠等）：
 
 ```text
 python <SKILL_DIR>/scripts/drive_search_by_keywords.py 关键词1 关键词2 关键词3
@@ -57,9 +57,22 @@ python <SKILL_DIR>/scripts/drive_search_by_keywords.py 关键词1 关键词2 关
 
 执行要点：
 - 将所有关键词作为独立参数传入，一次调用完成（避免多次调用导致重复 OAuth 授权）
-- 若脚本报错（非零退出码），捕获 stderr 并向用户说明原因，不要静默失败
+- 若脚本报错（非零退出码）、运行环境不兼容（例如缺少 `pty` / `termios`）、或脚本输出无法解析为 JSON，不要直接停止；先记录报错，再退回命令行执行 `gog drive search`
 
-若脚本不存在，说明技能未正确安装，提示用户检查 `scripts/` 目录。
+脚本 fallback 规则：
+
+- 对每个关键词单独执行：
+
+```text
+gog drive search "fullText contains '关键词'" --max 15 --json
+```
+
+- 将每次命令返回的 JSON 结果按 `id` 去重后合并
+- 只保留可用于后续流程的字段：`id`、`name`、`webViewLink`
+- 如果命令行 fallback 成功，则继续步骤 4，不要把脚本失败当成整个技能失败
+- 如果脚本与命令行都失败，再向用户展示错误并停止
+
+若脚本不存在，也按上述 fallback 逻辑直接尝试 `gog drive search`。
 
 ---
 
@@ -118,7 +131,7 @@ python <SKILL_DIR>/scripts/drive_search_by_keywords.py 关键词1 关键词2 关
 ```
 
 - ❌ **筛选后为空**：按步骤 4 的提示处理，不展示文件列表
-- ❌ **脚本执行失败**：展示错误信息，引导用户排查（权限、网络、认证等）
+- ❌ **脚本和命令行都失败**：展示错误信息，引导用户排查（权限、网络、认证等）
 
 ---
 
@@ -128,8 +141,9 @@ python <SKILL_DIR>/scripts/drive_search_by_keywords.py 关键词1 关键词2 关
 |------|----------|
 | 输入缺少描述摘要或关键词 | 步骤 1 中止，提示用户补全 |
 | 关键词提取结果为空 | 告知用户，停止执行 |
-| 脚本文件不存在 | 提示检查技能安装，停止执行 |
-| 脚本返回非零退出码 | 展示 stderr，引导排查 |
-| JSON 解析失败 | 展示原始输出，提示脚本可能有问题 |
+| 脚本文件不存在 | 直接尝试 `gog drive search` 命令行 |
+| 脚本返回非零退出码 | 先尝试 `gog drive search` 命令行，再决定是否报错 |
+| JSON 解析失败 | 先尝试 `gog drive search` 命令行，再决定是否报错 |
+| 命令行 fallback 失败 | 展示 stderr / 原始输出，引导排查 |
 | 所有关键词均无结果 | 友好提示，建议调整关键词 |
 | 搜索有结果但筛选后为空 | 步骤 4 中止，说明原因并给出建议 |

@@ -32,6 +32,13 @@ The goal is to produce generalized rules, not a suite-by-suite recap.
 6. Output reusable rules.
    Summarize naming, testcase splitting, granularity, coverage dimensions, and anti-patterns.
 
+When another skill uses this skill to improve testcase detail rather than to write a standalone rule document, also do this:
+
+1. Narrow to the closest historical subdomain first.
+2. For network, security, port-control, connectivity, or forwarding features, read from `former_cases/15_SDN` first.
+3. Extract matrix dimensions, paired success/failure cases, and detail gaps that the current feature should inherit.
+4. Return reusable detail guidance instead of copying old business content.
+
 ## Open References On Demand
 
 - [references/workflow.md](references/workflow.md): detailed workflow, sampling, and stop conditions.
@@ -39,6 +46,7 @@ The goal is to produce generalized rules, not a suite-by-suite recap.
 - [references/output-template.md](references/output-template.md): default output structure for the final write-up.
 - [references/examples.md](references/examples.md): good and bad examples of analysis output.
 - [references/sdn-sample.md](references/sdn-sample.md): entrypoint for a longer domain-specific sample.
+- [references/historical-neighbor-learning.md](references/historical-neighbor-learning.md): how to learn matrix detail from nearby historical suites, especially `former_cases/15_SDN`.
 - [scripts/export_testrail_cases.py](scripts/export_testrail_cases.py): reusable exporter for grouped markdown output.
 
 ## Export Guidance
@@ -65,6 +73,7 @@ testrail_cases_by_group/
 - Keep conclusions reusable across products when possible.
 - Explicitly cover granularity, coverage dimensions, and failure or recovery scenarios.
 - Call out anti-patterns that should not be copied into new testcase design.
+- When the caller needs testcase detail补全, prefer returning matrix dimensions, must-cover pairs, and detail gaps over a long suite summary.
 
 ## Quality Bar
 
