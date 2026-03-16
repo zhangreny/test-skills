@@ -1,0 +1,4 @@
+interface:
+  display_name: "Figma PNG UI Case Generate"
+  short_description: "Generate UI testcases from doc plus exported Figma PNG blocks."
+  default_prompt: "Use $figma-2-png-doc-uicase-generate to export scenario blocks from Figma as PNG images, then draft layered UI testcases from the requirement doc and those images."

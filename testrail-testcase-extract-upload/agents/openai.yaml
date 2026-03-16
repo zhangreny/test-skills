@@ -1,0 +1,4 @@
+interface:
+  display_name: "Testcase Extract Upload"
+  short_description: "Parse and upload testcase docs to TestRail"
+  default_prompt: "Use $testrail-testcase-extract-upload to parse a TestRail-style testcase document from an absolute markdown path and upload it to a target suite or section with an explicit suite id."
