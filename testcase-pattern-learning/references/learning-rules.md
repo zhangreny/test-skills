@@ -43,9 +43,10 @@ Common test point categories:
 5. State transition
 6. Fault recovery
 7. Display and observability
-8. Resource constraint
-9. Upgrade or compatibility
-10. Regression from historical issues
+8. Execution tool and verification path
+9. Resource constraint
+10. Upgrade or compatibility
+11. Regression from historical issues
 
 ## 3. Granularity rules
 
@@ -77,10 +78,11 @@ Check these common dimensions first:
 6. State change
 7. Display or reporting
 8. Logs or counters
-9. Fault and recovery
-10. Upgrade and compatibility
-11. Resource limits
-12. Historical regression
+9. Execution tool or observation method
+10. Fault and recovery
+11. Upgrade and compatibility
+12. Resource limits
+13. Historical regression
 
 ## 5. Anti-patterns
 
@@ -91,4 +93,5 @@ Common bad smells:
 3. Only happy path is covered.
 4. The analysis only checks UI and not real effectiveness.
 5. Old case titles are copied without abstraction.
-6. The final rules only work for one product and cannot generalize.
+6. Hidden-result cases never explain how the result will be observed.
+7. The final rules only work for one product and cannot generalize.

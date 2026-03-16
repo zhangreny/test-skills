@@ -1,6 +1,6 @@
 # Historical Neighbor Learning
 
-Use this reference when the goal is not just to summarize old testcase style, but to improve the detail coverage of a new testcase draft by learning from nearby historical suites.
+Use this reference when the goal is not just to summarize old testcase style, but to improve the detail coverage of a new testcase draft by learning from nearby historical sources.
 
 ## Purpose
 
@@ -14,6 +14,22 @@ The output of this process should help answer:
 2. Which dimensions can be sampled instead of fully enumerated?
 3. Which success and failure paths usually appear in pairs?
 4. Which edge or recovery cases are easy to miss if only reading the requirement?
+5. Which execution tools and observability methods should be made explicit in new testcases?
+
+## Source Layers
+
+Default to two source layers when testcase coverage is the goal:
+
+1. Curated local historical suites in `former_cases/`.
+   Use these to learn stable domain matrix dimensions and recurring long-lived blind spots.
+2. Live or recent grouped exports from TestRail.
+   Use these to learn current suite organization, recent naming style, newer regression focus, and what the team is testing now.
+
+It is acceptable to finish with only one source layer only when:
+
+1. The other layer is unavailable or blocked.
+2. The missing dimensions are already fully explained by the layer you used.
+3. You explicitly say why the other layer was unnecessary or unavailable.
 
 ## Scope First
 
@@ -24,6 +40,12 @@ For network, security, port-control, connectivity, or forwarding features:
 1. Start from `former_cases/15_SDN` only.
 2. Prefer matching by suite name, section name, object name, action name, and symptom words.
 3. Do not scan other project folders unless `15_SDN` clearly lacks relevant samples.
+
+For live grouped exports:
+
+1. Start from the same product, same feature family, or same object family first.
+2. Prefer the smallest relevant project or grouped export slice.
+3. Do not scan unrelated projects just because they share one keyword.
 
 Recommended priority inside `15_SDN`:
 
@@ -43,13 +65,17 @@ Use these signals to find candidate suites or sections:
    Examples: timeout, fallback, not effective, failed, cannot connect, pending, retry.
 4. Result-layer words.
    Examples: UI display, log, connectivity, forwarding, audit, alert, task result.
+5. Tool and observability words.
+   Examples: API, CLI, script, trace, packet capture, counter, report, task, diagnosis tool.
+6. Version and compatibility words.
+   Examples: upgrade, downgrade, inherited config, existing cluster, compatibility, architecture.
 
 Keep only the top few candidates.
 Default target:
 
 1. 3-5 suites.
 2. 1-3 relevant sections per suite.
-3. About 20 representative cases first.
+3. About 20 representative cases first, across the source layers you decided to use.
 
 Expand only if the pattern is still unstable.
 
@@ -65,6 +91,8 @@ Read in this order:
    Check how conditions and expected results are paired.
 4. A small number of case bodies.
    Only read enough to understand what detail the title alone does not reveal.
+5. Cross-source comparison.
+   Check what the curated local suites emphasize versus what live grouped exports emphasize.
 
 Do not default to full-file reading.
 
@@ -80,7 +108,8 @@ Record the most relevant sources:
 
 1. Which suite matched.
 2. Which section matched.
-3. Why it matched the current feature.
+3. Which source layer it came from.
+4. Why it matched the current feature.
 
 ### 2. Matrix Dimensions
 
@@ -104,7 +133,20 @@ Examples:
 3. A fallback path may need both correctness and latency validation.
 4. UI and real effect should not always stay in one case.
 
-### 4. Sampling Guidance
+### 4. Tool and Observability Clues
+
+Always extract how historical suites make hidden results testable.
+
+Capture at least:
+
+1. Execution tools.
+   Examples: UI, API, CLI, setup scripts, diagnosis tools.
+2. Observability methods.
+   Examples: logs, alerts, counters, reports, packet capture, trace, task state.
+3. Tool-required paths.
+   Which case families only become valid when the tool or observation step is made explicit.
+
+### 5. Sampling Guidance
 
 Split dimensions into two groups:
 
@@ -121,14 +163,29 @@ Typical must-not-sample dimensions:
 4. Upgrade-before vs upgrade-after.
 5. Recovery-before vs recovery-after.
 
+### 6. Coverage Expansion Inputs
+
+Always try to leave behind inputs that another skill can turn into a `coverage_expansion_plan`:
+
+1. Must-pair paths.
+   Examples: success/failure, before/after edit, enable/disable, upgrade before/after, fault/recovery.
+2. Must-expand dimensions.
+   Dimensions that should become explicit independent cases.
+3. Tool-required paths.
+   Paths that need UI / API / CLI / log / alert / capture / trace / report steps to be explicit.
+4. Unsupported dimensions.
+   Gaps that still lack enough historical evidence.
+
 ## How To Use The Result
 
 When another skill uses this output to generate new testcases:
 
 1. Keep the current requirement as the primary source of truth.
 2. Use the historical result only to expand detail and close common coverage gaps.
-3. Convert the learned dimensions into a `coverage_expansion_plan` before drafting final cases.
-4. Prefer “condition + action + single result” even after matrix expansion.
+3. Let curated local suites contribute broad matrix dimensions and recurring long-lived blind spots.
+4. Let live grouped exports contribute current naming, organization, and recent regression focus.
+5. Convert the learned dimensions into a `coverage_expansion_plan` before drafting final cases.
+6. Prefer “condition + action + single result” even after matrix expansion.
 
 ## Stop Conditions
 
@@ -137,8 +194,10 @@ Stop reading more historical suites when:
 1. The matrix dimensions are already stable.
 2. New suites only repeat known dimensions.
 3. The missing detail points are already concrete enough to drive testcase drafting.
+4. The tool / observability clues are already concrete enough to drive testcase drafting.
 
 If relevant historical suites are still too weak:
 
 1. Say exactly which detail dimension is still unsupported.
-2. Do not invent a matrix just to make the output look complete.
+2. Say whether the gap comes from the curated local layer, the live layer, or both.
+3. Do not invent a matrix just to make the output look complete.

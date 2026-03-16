@@ -1,4 +1,0 @@
-interface:
-  display_name: "Figma UI Case Generate"
-  short_description: "Generate UI-focused testcases from Figma and requirement docs."
-  default_prompt: "Use $figma-doc-uicase-generate to read a Figma design and requirement doc, then draft layered UI testcases."
