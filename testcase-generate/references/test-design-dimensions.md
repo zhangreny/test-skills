@@ -1,11 +1,24 @@
-# 通用测试设计维度
+# Step 7：通用测试维度缺口分析
 
-在 Step 5 做测试设计收敛时，把以下维度作为显式输入，而不是靠生成 testcase 时临时脑补。
+在进入最终 pattern 学习前，先围绕通用测试维度检查 `working_dir/testcase_addformercase_reviewed.md` 还缺什么。
+
+## 输入与全文读取要求
+
+本步骤至少全文读取以下内容：
+
+- `working_dir/testcase_addformercase_reviewed.md`
+- Step 4 到 Step 6 使用过的正文资料
+
+执行要求：
+
+- 先完整阅读当前 reviewed testcase，再判断通用测试维度是否已经覆盖。
+- 不要只凭模块标题猜测“应该已经覆盖”。
+- 在 `working_dir/full_read_manifest.md` 中追加记录本步骤全文读取的资料和 testcase 文件。
 
 ## 维度清单
 
 1. 验收测试
-   - 包括前端、后端和端到端集成验收
+   - 包括前端和后端，端到端集成
 2. 功能测试
 3. 边界测试
 4. 可靠性测试
@@ -18,48 +31,24 @@
 9. 集群扩缩容场景对功能进行验证
 10. 集群升级场景对功能进行验证
 
-## 使用规则
+## 输出要求
 
-- 不要默认这 10 类都必须展开成同等数量的 testcase；先判断是否适用，再决定覆盖方式。
-- 对每一类维度都必须给出以下三种判定之一：
-  - `must_cover`：当前 feature 必须显式覆盖，且要在 `coverage_expansion_plan` 和最终 case 中找到落点
-  - `sample_cover`：当前 feature 需要覆盖，但允许抽样，不要求把该维度下所有变体都展开
-  - `not_applicable`：当前 feature 不适用，但必须写明理由
-- 如果一个维度被标记为 `not_applicable`，理由必须基于当前需求、产品边界、交付目标或环境限制，不能只写“暂不考虑”。
-- 如果一个维度被标记为 `sample_cover`，必须写明抽样依据，例如风险较低、已有历史覆盖、当前版本改动面有限、仅影响单一对象等。
-- 如果当前需求明确涉及扩缩容、升级、兼容、性能、故障恢复、前后端联动，就不能把对应维度标记为 `not_applicable`。
+输出：
 
-## 与 Step 5 的衔接要求
+- `working_dir/test_dimension_gap_analysis.md`
 
-- 在完成业务分析后，先用这 10 类维度检查当前 feature 的覆盖范围，再进入测试对象核对和工具矩阵设计。
-- 对每个维度至少补充以下信息：
-  - `dimension`
-  - `decision`
-  - `why`
-  - `mapped_objects`
-  - `mapped_test_angles`
-  - `mapped_case_groups`
-- 如果某个维度需要特殊环境或特殊前置条件，例如压测环境、升级路径、扩缩容资源池、兼容性矩阵，要在 Step 5 明确记录依赖，不要到 Step 6 才暴露。
+对每个维度至少记录：
 
-## 与 `coverage_expansion_plan` 的衔接要求
+- `dimension`
+- `why_relevant`
+- `already_covered_cases`
+- `missing_scenarios`
+- `suggested_additions`
+- `not_applicable_reason`
 
-在 `coverage_expansion_plan` 中额外增加：
+规则：
 
-- `test_dimension_coverage`
-  - 按上述 10 类维度逐项记录 `must_cover` / `sample_cover` / `not_applicable`
-  - 记录每类维度映射到的测试角度、case 分组或残余风险
-
-如果某类维度被判定为 `must_cover`，但在后续 seeds 或最终 testcase 中没有对应落点，必须视为缺口，不能继续推进终稿。
-
-## 建议判断口径
-
-- 验收测试：当 feature 涉及多层联动、前后端协同、完整交付闭环时，通常至少 `sample_cover`，高风险时 `must_cover`
-- 功能测试：通常为 `must_cover`
-- 边界测试：只要存在参数、状态、对象差异、条件差异，通常至少 `sample_cover`
-- 可靠性测试：当 feature 涉及异步任务、状态恢复、依赖链路、服务异常、重试回滚时，通常至少 `sample_cover`
-- 用户场景测试：当 feature 面向真实业务路径或运维路径交付时，通常至少 `sample_cover`
-- 压力测试：只有在需求、历史问题、性能风险或交付目标明确涉及容量、吞吐、并发、时延时，才提升为 `must_cover` 或 `sample_cover`
-- 规格测试：当需求存在明确规格、限制、配额、数量上限、行为契约时，通常至少 `sample_cover`
-- 兼容性测试：当 feature 涉及版本、平台、架构、部署形态、外部依赖差异时，通常至少 `sample_cover`
-- 集群扩缩容验证：当 feature 与集群资源、节点数量、调度、部署拓扑或集群生命周期有关时，通常至少 `sample_cover`
-- 集群升级验证：当 feature 有版本继承、升级前后行为一致性、配置保留、状态迁移要求时，通常至少 `sample_cover`
+- 如果当前 feature 明确涉及某个维度，不要把它轻易写成 `not_applicable`。
+- 如果当前 testcase 已覆盖该维度，也要指出具体落在哪些 case，而不是只写“已覆盖”。
+- 如果当前维度仍有明显缺口，要写清楚缺的是什么场景、为什么缺、后续准备在哪里补。
+- Step 8 必须全文读取 `working_dir/test_dimension_gap_analysis.md`，不能只看结论摘要。
