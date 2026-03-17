@@ -36,6 +36,7 @@ Require these inputs before continuing:
 4. The owning suite id only when the user already knows it or wants an explicit cross-check.
 
 If the source does not follow this structure, fix or normalize the testcase content first.
+If the testcase markdown or any intermediate JSON contains Chinese, prefer UTF-8 explicitly for reading and writing instead of relying on the OS default encoding.
 
 Do not accept stdin or relative paths for testcase markdown.
 Prefer resolving the suite id from the target through the script instead of guessing it manually.
@@ -51,6 +52,7 @@ python scripts/parse_testrail_template.py --source C:/absolute/path/to/testcase_
 ```
 
 This returns the nested JSON tree that the upload script will consume.
+The parser uses UTF-8 and now performs garbled-text checks on the source and parsed result. If it reports suspected mojibake, stop and fix the source file encoding before uploading.
 
 ### 3. Inspect the target location if needed
 
@@ -155,4 +157,5 @@ Before finishing, verify:
 2. The testcase markdown path was absolute.
 3. The upload target was resolved as either a section or a suite in the given project.
 4. Only the minimal extraction and upload logic was copied into `scripts/`.
-5. The skill stays focused on extraction and upload, not testcase generation.
+5. Chinese-containing testcase markdown and intermediate files were handled as UTF-8, not with the system default encoding.
+6. The skill stays focused on extraction and upload, not testcase generation.

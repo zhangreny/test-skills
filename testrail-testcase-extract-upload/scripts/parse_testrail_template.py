@@ -62,6 +62,19 @@ def testrail_default_template_to_json(text: str) -> list[dict]:
     return _serialize_children(root.get("children") or [])
 
 
+def validate_no_suspected_garbled_text(text: str, tree: list[dict]) -> None:
+    findings: list[str] = []
+    findings.extend(_find_suspected_garbled_source_lines(text))
+    findings.extend(_find_suspected_garbled_tree(tree))
+    if findings:
+        sample = "\n".join(f"- {item}" for item in findings[:10])
+        raise SystemExit(
+            "Suspected garbled text detected in the testcase source or parsed result. "
+            "Please re-save the related files as UTF-8 and retry.\n"
+            f"{sample}"
+        )
+
+
 def _consume_description(lines: list[str], start: int, node: dict) -> int:
     i = start
     while i < len(lines) and not lines[i].strip():
@@ -75,6 +88,70 @@ def _consume_description(lines: list[str], start: int, node: dict) -> int:
 def _parse_number_title(line: str) -> tuple[str | None, str]:
     match = re.match(r"^(\d+(?:\.\d+)*)\s+(.+)$", line.strip())
     return (match.group(1), match.group(2).strip()) if match else (None, line.strip())
+
+
+def _is_suspected_garbled_text(text: str) -> bool:
+    if not text:
+        return False
+    if "\ufffd" in text:
+        return True
+    if any(token in text for token in ("â€", "â€œ", "â€", "â€˜", "â€™", "Ã", "Â", "ðŸ")):
+        return True
+    if _has_utf8_as_latin1_pattern(text):
+        return True
+    latin1_supplement_count = sum(1 for ch in text if 0x00C0 <= ord(ch) <= 0x00FF)
+    return latin1_supplement_count >= 4
+
+
+def _has_utf8_as_latin1_pattern(text: str) -> bool:
+    i = 0
+    while i < len(text):
+        current = ord(text[i])
+        if 0x00C0 <= current <= 0x00FF:
+            continuation = 0
+            j = i + 1
+            while j < len(text) and 0x0080 <= ord(text[j]) <= 0x00BF:
+                continuation += 1
+                j += 1
+            if continuation >= 1:
+                return True
+        i += 1
+    return False
+
+
+def _find_suspected_garbled_source_lines(text: str) -> list[str]:
+    findings: list[str] = []
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        stripped = line.strip()
+        if stripped and _is_suspected_garbled_text(stripped):
+            findings.append(f"source line {lineno}: {stripped[:120]}")
+    return findings
+
+
+def _walk_tree_strings(nodes: list[dict], path: str = "") -> list[tuple[str, str]]:
+    collected: list[tuple[str, str]] = []
+    for index, node in enumerate(nodes, start=1):
+        node_label = f"{(node.get('number') or '').strip()} {(node.get('title') or '').strip()}".strip() or f"node-{index}"
+        node_path = f"{path} > {node_label}" if path else node_label
+        for field in ("title", "description"):
+            value = (node.get(field) or "").strip()
+            if value:
+                collected.append((f"{node_path} [{field}]", value))
+        for step_index, step in enumerate(node.get("steps") or [], start=1):
+            stripped = (step or "").strip()
+            if stripped:
+                collected.append((f"{node_path} [step {step_index}]", stripped))
+        if node.get("children"):
+            collected.extend(_walk_tree_strings(node["children"], node_path))
+    return collected
+
+
+def _find_suspected_garbled_tree(nodes: list[dict]) -> list[str]:
+    findings: list[str] = []
+    for location, value in _walk_tree_strings(nodes):
+        if _is_suspected_garbled_text(value):
+            findings.append(f"parsed {location}: {value[:120]}")
+    return findings
 
 
 def _serialize_children(children: list[dict]) -> list[dict]:
@@ -112,6 +189,7 @@ def main() -> int:
 
     text = args.source.read_text(encoding="utf-8")
     result = testrail_default_template_to_json(text)
+    validate_no_suspected_garbled_text(text, result)
     indent = 2 if args.pretty else None
     print(json.dumps(result, ensure_ascii=False, indent=indent))
     return 0

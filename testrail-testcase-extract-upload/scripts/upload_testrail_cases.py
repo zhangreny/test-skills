@@ -7,7 +7,10 @@ import argparse
 import json
 from pathlib import Path
 
-from parse_testrail_template import testrail_default_template_to_json
+from parse_testrail_template import (
+    testrail_default_template_to_json,
+    validate_no_suspected_garbled_text,
+)
 from testrail_client import (
     DEFAULT_TESTRAIL_API_KEY,
     DEFAULT_TESTRAIL_USER,
@@ -155,6 +158,7 @@ def main() -> int:
 
     content = args.source.read_text(encoding="utf-8")
     tree = testrail_default_template_to_json(content)
+    validate_no_suspected_garbled_text(content, tree)
     if not tree:
         raise SystemExit("No valid testcase structure was parsed from the source document.")
 
