@@ -1,4 +1,4 @@
 interface:
   display_name: "Figma SVG+PNG UI Case Generate"
-  short_description: "Generate deeper UI testcases from doc plus per-scene Figma assets, with historical testcase learning and coverage planning."
-  default_prompt: "Use $figma-2-svg-and-png-doc-uicase-generate to split a Figma board into the largest scene blocks, prepare PNG and SVG for each scene, confirm scene-level UI evidence, then learn from nearby historical testcases, build coverage_expansion_plan and generate deeper UI testcases instead of stopping at screenshot-level coverage."
+  short_description: "Generate deeper UI testcases from local requirement files or Google Doc URLs plus per-scene Figma assets, with historical testcase learning and coverage planning."
+  default_prompt: "Use $figma-2-svg-and-png-doc-uicase-generate to accept one or more local requirement files or Google Doc URLs, download any Google Docs into a timestamped Downloads folder, split a Figma board into the largest scene blocks, prepare PNG and SVG for each scene, confirm scene-level UI evidence, then learn from nearby historical testcases, build coverage_expansion_plan and generate deeper UI testcases instead of stopping at screenshot-level coverage."

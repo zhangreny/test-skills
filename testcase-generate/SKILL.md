@@ -1,19 +1,64 @@
 ---
 name: testcase-generate
-description: 根据用户提供的需求文档路径生成 SmartX 功能测试用例。适用于“生成测试用例”“根据文档写测试点”“输出 TestRail 格式用例”等请求。流程包括：校验与盘点输入文件、先单独完成文档分析与用户确认、准备相关 Drive 资料、补充查询 Jira 历史 issue、再结合本地 SmartX 文档确认测试角度，最终输出符合 TestRail 结构的测试用例。
+description: 根据用户提供的需求文档路径、目录路径或 Google Docs URL 生成 SmartX 功能测试用例。适用于“生成测试用例”“根据文档写测试点”“输出 TestRail 格式用例”等请求。流程包括：先归一化输入并在需要时下载 Google Docs、再校验与盘点输入文件、先单独完成文档分析与用户确认、准备相关 Drive 资料、补充查询 Jira 历史 issue、再结合本地 SmartX 文档确认测试角度，最终输出符合 TestRail 结构的测试用例。
 ---
 
 # Testcase Generate
 
 按以下顺序执行：
 
-**Step 1：盘点输入文件 -> Step 2：先分析原始需求并让用户确认 -> Step 3：补齐相关 Drive 文档 -> Step 4：查询并摘要 Jira 并让用户确认 -> Step 5：整合资料、补齐工具与历史矩阵并统一确认测试设计 -> Step 6：生成、补缺并 review 测试用例**
+**Step 0：归一化输入 -> Step 1：盘点输入文件 -> Step 2：先分析原始需求并让用户确认 -> Step 3：补齐相关 Drive 文档 -> Step 4：查询并摘要 Jira 并让用户确认 -> Step 5：整合资料、补齐工具与历史矩阵并统一确认测试设计 -> Step 6：生成、补缺并 review 测试用例**
+
+---
+
+## Step 0：归一化输入
+
+先判断用户给的是哪一类输入，再统一转换为可继续处理的本地文件列表。
+
+支持的输入类型：
+
+- 单个需求文档路径
+- 包含需求文档的目录路径
+- 一个或多个 Google Docs URL
+- 上述几类输入的混合
+
+### 0.1 处理 Google Docs URL
+
+如果用户输入中包含一个或多个 Google Docs URL，先逐个提取文档 id，再执行下载，不要直接把 URL 留到后续 Step 1。
+
+Google Docs 文档 id 提取规则：
+
+- 对形如 `https://docs.google.com/document/d/<ID>/edit?...` 的 URL，取 `/d/` 后、下一个 `/` 前的字符串作为文档 id。
+- 例如 `https://docs.google.com/document/d/1kRbOppUeD34YnqnwL2HdvZ9NW4iVQSoGitHNjOxycBo/edit?tab=t.7q8myxjn8ndc` 的 id 为 `1kRbOppUeD34YnqnwL2HdvZ9NW4iVQSoGitHNjOxycBo`。
+- 如果某个 URL 不符合该模式，必须显式说明哪个 URL 无法提取 id，并停止使用该 URL 继续后续流程。
+
+### 0.2 下载 Google Docs 到本地
+
+读取并遵循 `../all-related-file-preparer-4-testcase-generate/google-drive-file-download/SKILL.md`，但此处的目标目录不要由用户额外指定，而是自动使用当前操作系统的系统 `Downloads` 目录下新建一个时间戳文件夹。
+
+目标目录规则：
+
+- Windows：`%USERPROFILE%\\Downloads\\testcase-download-YYYYMMDD-HHMMSS`
+- macOS：`$HOME/Downloads/testcase-download-YYYYMMDD-HHMMSS`
+- Linux：`$HOME/Downloads/testcase-download-YYYYMMDD-HHMMSS`
+- 例如：`testcase-download-20260317-114005`
+
+调用要求：
+
+- 将提取出的 Google Docs 文档 id 列表逐个传给下载技能，不要在单次调用里混传多个 id。
+- 传递的目标目录应是“系统 Downloads 目录 + 当前时刻时间戳文件夹”。
+- 若用户同时还给了本地文件路径或目录路径，则将下载结果与这些本地输入合并，作为后续 Step 1 的输入集合。
+- 若下载失败，必须明确指出失败的 id 与错误，不能跳过失败项继续假设文档已存在本地。
+
+### 0.3 归一化输出
+
+Step 0 结束后，后续步骤看到的输入应统一为“本地文件路径列表或目录列表”，不再把原始 Google Docs URL 直接传入 Step 1 之后的分析、Drive 搜索与 Jira 搜索流程。
 
 ---
 
 ## Step 1：盘点输入文件
 
-围绕用户提供的原始需求文档或目录做一次轻量盘点：
+围绕 Step 0 归一化后的原始需求文档或目录做一次轻量盘点：
 
 - 展示目录结构或等价的文件清单。
 - 明确标出会参与后续分析的 `.pdf`、`.docx`、`.md` 文件。
