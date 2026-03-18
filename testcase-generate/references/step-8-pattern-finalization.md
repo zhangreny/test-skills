@@ -64,12 +64,23 @@
 
 - `working_dir/testcase_final_reviewed.md`
 
+在 review 开始前，先用以下脚本做格式测试：
+
+```bash
+python ../testrail-testcase-extract-upload/scripts/parse_testrail_template.py --source <working_dir/testcase_final.md 的绝对路径> --pretty
+```
+
+规则：
+
+- `--source` 必须传 testcase 文件的绝对路径。
+- 如果脚本解析失败、提示结构不合法或怀疑乱码，先修 testcase 格式或编码，再继续后续 review。
+
 review 必查项：
 
 1. 是否保留了 `testcase_addformercase_reviewed.md` 的全部有效内容
 2. 是否补齐了 Step 7 与组别 pattern 暴露出的缺口
 3. 是否仍存在能拆却未拆的 case
 4. 是否仍存在“在步骤里藏多条用例”的情况
-5. 是否符合 `references/testrail_default.md` 的模板结构
+5. 是否符合 `references/testrail_default.md` 的模板结构，并能被 `parse_testrail_template.py` 成功解析
 
 最终返回给用户的必须是 review 后的 `working_dir/testcase_final_reviewed.md` 正文。

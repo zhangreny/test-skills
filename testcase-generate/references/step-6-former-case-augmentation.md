@@ -91,10 +91,21 @@
 
 - `working_dir/testcase_addformercase_reviewed.md`
 
+在 review 开始前，先用以下脚本做格式测试：
+
+```bash
+python ../testrail-testcase-extract-upload/scripts/parse_testrail_template.py --source <working_dir/testcase_addformercase.md 的绝对路径> --pretty
+```
+
+规则：
+
+- `--source` 必须传 testcase 文件的绝对路径。
+- 如果脚本解析失败、提示结构不合法或怀疑乱码，先修 testcase 格式或编码，再继续后续 review。
+
 review 必查项：
 
 1. 新增内容是否与命中的本地历史近邻场景一致
 2. 能拆成多条用例的地方是否都已拆开
 3. 是否仍存在“把多条用例藏在一条 case 的步骤里”的情况
 4. 是否保留了 `testcase_jira_reviewed.md` 的全部有效内容
-5. 是否符合 `references/testrail_default.md` 的模板结构
+5. 是否符合 `references/testrail_default.md` 的模板结构，并能被 `parse_testrail_template.py` 成功解析

@@ -19,6 +19,7 @@ description: 根据用户提供的需求文档路径、目录路径或 Google Do
   - Step 5 的 Jira 相关性必须经用户确认后，才能写入 Jira 补充用例。
   - Step 6 的近邻缺口必须经用户确认后，才能写入历史近邻补充用例。
 - 只在生成或 review testcase 时读取 `references/testrail_default.md`，不要让模板替代业务理解。
+- 在 Step 4、Step 5、Step 6、Step 8 的 testcase review 阶段，可使用 `../testrail-testcase-extract-upload/scripts/parse_testrail_template.py` 对当前 testcase markdown 做结构校验；解析失败时先修格式，再继续业务 review。
 
 ## 全量读取与内容递增规则
 

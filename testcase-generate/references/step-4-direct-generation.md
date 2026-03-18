@@ -105,15 +105,27 @@
 
 - `working_dir/testcase_1_direct_reviewed.md`
 
+在 review 开始前，先用以下脚本做格式测试：
+
+```bash
+python ../testrail-testcase-extract-upload/scripts/parse_testrail_template.py --source <working_dir/testcase_1_direct.md 的绝对路径> --pretty
+```
+
+规则：
+
+- `--source` 必须传 testcase 文件的绝对路径。
+- 按 UTF-8 读取 testcase 文件。
+- 如果脚本解析失败、提示结构不合法或怀疑乱码，先修 testcase 格式或编码，再继续后续 review。
+
 review 必查项：
 
 1. 文档中的所有场景是否都有落点
 2. 能拆成多条用例的地方是否已经拆开
 3. 是否存在“表面上一条 case，实际上步骤里藏了多条 case”的情况
 4. 是否存在正文与“已全文读取的用户 / Drive 材料”及“已按需读取的产品文档章节”不一致的情况
-5. 是否符合 `references/testrail_default.md` 的模板结构
+5. 是否符合 `references/testrail_default.md` 的模板结构，并能被 `parse_testrail_template.py` 成功解析
 
 回修规则：
 
-- 如果发现缺场景、缺分支、缺观测、粒度过粗或模板不齐，先回修，再输出 reviewed 版本。
+- 如果发现缺场景、缺分支、缺观测、粒度过粗、模板不齐或 parser 解析失败，先回修，再输出 reviewed 版本。
 - reviewed 版本必须保留并扩展 direct 版本内容，不要减少已写出的有效用例。

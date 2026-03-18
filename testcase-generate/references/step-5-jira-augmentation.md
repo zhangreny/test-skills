@@ -84,15 +84,26 @@
 
 - `working_dir/testcase_jira_reviewed.md`
 
+在 review 开始前，先用以下脚本做格式测试：
+
+```bash
+python ../testrail-testcase-extract-upload/scripts/parse_testrail_template.py --source <working_dir/testcase_jira.md 的绝对路径> --pretty
+```
+
+规则：
+
+- `--source` 必须传 testcase 文件的绝对路径。
+- 如果脚本解析失败、提示结构不合法或怀疑乱码，先修 testcase 格式或编码，再继续后续 review。
+
 review 必查项：
 
 1. 新增用例是否与 Jira issue 正文对齐，而不是只对齐标题
 2. 能拆成多条用例的 Jira 场景是否已经拆开
 3. 是否仍存在“把多条用例藏进一个 case 步骤里”的情况
 4. 是否保留了 `testcase_1_direct_reviewed.md` 的全部有效内容
-5. 是否符合 `references/testrail_default.md` 的模板结构
+5. 是否符合 `references/testrail_default.md` 的模板结构，并能被 `parse_testrail_template.py` 成功解析
 
 回修规则：
 
-- 发现与 Jira 正文不对齐、粒度过粗、场景漏写或模板不齐时，先回修，再输出 reviewed 版本。
+- 发现与 Jira 正文不对齐、粒度过粗、场景漏写、模板不齐或 parser 解析失败时，先回修，再输出 reviewed 版本。
 - 后续 Step 6 只能以 `working_dir/testcase_jira_reviewed.md` 为基线，不要退回 `testcase_1_direct_reviewed.md`。
