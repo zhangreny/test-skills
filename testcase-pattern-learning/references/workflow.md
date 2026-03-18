@@ -52,6 +52,21 @@ If the caller provides `core_keywords` and `expansion_keywords`, narrow in this 
 
 Do not scan the entire corpus first.
 
+Before reading curated local samples, pick the local root that matches the current group:
+
+1. Network and security: `former_cases/15_SDN`
+2. ELF virtualization: `former_cases/1_SmartX` with `121_Master.md` first
+3. Backup and replication: `former_cases/6_Backup`
+4. SKS and Kubernetes platform: `former_cases/8_SKS`
+5. ZBS and block storage: `former_cases/18_ZBS CSI`, plus `former_cases/1_SmartX/300_SMTX ZBS.md` when linkage matters
+6. SRE and platform ops:
+   - `former_cases/10_可观测平台`
+   - `former_cases/16_巡检中心`
+   - `former_cases/17_SFS`
+   - `former_cases/22_Neutree`
+
+Only fall back to the broader `former_cases/` tree when no group root can be justified.
+
 ## Step 4: Read structure before titles
 
 Inspect structure first:

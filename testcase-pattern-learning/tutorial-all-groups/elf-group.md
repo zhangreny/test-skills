@@ -24,6 +24,13 @@
 2. `former_cases/1_SmartX/300_SMTX ZBS.md`
    主要提供 ELF 与 ZBS 的块存储联动、双活、维护模式、升级、回收站、widget、入口与批量操作写法。
 
+历史样本入口：
+
+1. 根目录：`former_cases/1_SmartX`
+2. 优先文件：
+   - `121_Master.md`
+   - `300_SMTX ZBS.md`（涉及 ZBS 联动时）
+
 这次只使用 `former_cases` 这一层历史样本，没有继续扩展到 live grouped exports，因为两个 suite 已经能稳定覆盖 ELF 组最常见的 testcase 设计模式。
 
 主要覆盖以下能力：

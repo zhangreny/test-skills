@@ -1,0 +1,8 @@
+interface:
+  display_name: "SmartX Testcase Generate"
+  short_description: "按 lite / standard / deep 模式生成 SmartX TestRail 测试用例。"
+  brand_color: "#2563EB"
+  default_prompt: "Use $testcase-generate to analyze my SmartX requirement documents, choose the right workflow mode, and generate TestRail-style testcases."
+
+policy:
+  allow_implicit_invocation: true

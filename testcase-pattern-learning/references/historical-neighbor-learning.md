@@ -35,11 +35,30 @@ It is acceptable to finish with only one source layer only when:
 
 Always narrow before reading.
 
-For network, security, port-control, connectivity, or forwarding features:
+Use these curated local roots first:
 
-1. Start from `former_cases/15_SDN` only.
-2. Prefer matching by suite name, section name, object name, action name, and symptom words.
-3. Do not scan other project folders unless `15_SDN` clearly lacks relevant samples.
+1. Network, security, port-control, connectivity, or forwarding features:
+   - Start from `former_cases/15_SDN`.
+2. Backup, replication, recovery point, failover, or repository features:
+   - Start from `former_cases/6_Backup`.
+3. SKS, Kubernetes platform, CNI, CSI, GPU, or system-service features:
+   - Start from `former_cases/8_SKS`.
+4. ZBS, CSI, block storage, PV/PVC, snapshot, clone, or storage-policy features:
+   - Start from `former_cases/18_ZBS CSI`.
+   - Add `former_cases/1_SmartX/300_SMTX ZBS.md` when management-plane linkage matters.
+5. ELF virtualization, migration, VM lifecycle, VMTools, or Guest network features:
+   - Start from `former_cases/1_SmartX/121_Master.md`.
+   - Add `former_cases/1_SmartX/300_SMTX ZBS.md` when ZBS linkage matters.
+6. SRE and platform-ops features:
+   - Observability and alerting: `former_cases/10_可观测平台`
+   - Inspection service: `former_cases/16_巡检中心`
+   - File storage platform ops: `former_cases/17_SFS`
+   - Control plane plus monitoring stack: `former_cases/22_Neutree`
+
+For the selected root:
+
+1. Prefer matching by suite name, section name, object name, action name, and symptom words.
+2. Do not scan unrelated project folders unless the selected root clearly lacks relevant samples.
 
 For live grouped exports:
 
@@ -47,7 +66,7 @@ For live grouped exports:
 2. Prefer the smallest relevant project or grouped export slice.
 3. Do not scan unrelated projects just because they share one keyword.
 
-Recommended priority inside `15_SDN`:
+Recommended priority inside the selected root:
 
 1. Same feature family suite.
 2. Same object or same action suite.

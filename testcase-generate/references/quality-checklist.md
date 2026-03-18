@@ -2,29 +2,47 @@
 
 最终输出前逐项确认：
 
-- 已完成 Step 0-2，并先做“原始需求分析 + 用户确认”。
-- 已在 Step 3 确认并准备相关 Drive 补充文档。
-- 从 Step 4 开始，已维护 `working_dir/full_read_manifest.md`，并记录每一步全文读取的资料、按需读取的产品文档章节与 testcase 文件。
-- Step 4 已全文读取原始需求文档与 Drive 补充文档。
-- Step 4 已按需读取 `smartx-docs-download/markdown_docs` 中直接相关的产品手册 / 管理指南 / 用户指南 / 技术白皮书 / 相关规格文档，且读取范围足以支撑当前 feature 理解。
-- Step 4 已直接生成 `testcase_1_direct.md`，没有使用 seeds、seed plan 或 gap loop。
-- Step 4 review 前已使用 `../testrail-testcase-extract-upload/scripts/parse_testrail_template.py` 对 `testcase_1_direct.md` 做格式测试；若解析失败，已先修格式再继续 review。
-- Step 4 review 已检查文档场景覆盖、可拆场景拆分、“步骤里藏用例”问题与模板格式，并输出 `testcase_1_direct_reviewed.md`。
-- Step 5 已全文读取 `testcase_1_direct_reviewed.md` 和前序正文资料，没有退化成只看摘要或关键词。
-- Step 5 已显式向用户确认相关 Jira，再追加 Jira 补充用例；每条 Jira 派生 case 都带有 Jira 号。
-- Step 5 review 前已使用 `../testrail-testcase-extract-upload/scripts/parse_testrail_template.py` 对 `testcase_jira.md` 做格式测试；若解析失败，已先修格式再继续 review。
-- Step 5 review 已检查 Jira 内容对齐、可拆场景拆分、“步骤里藏用例”问题与模板格式，并输出 `testcase_jira_reviewed.md`。
-- Step 6 只读取了本地历史 testcase 样本 `../testcase-pattern-learning/former_cases`，没有混入实时 TestRail 数据。
-- Step 6 已全文读取 `testcase_jira_reviewed.md`，并显式向用户确认历史近邻缺口，再补写 `testcase_addformercase.md`。
-- Step 6 review 前已使用 `../testrail-testcase-extract-upload/scripts/parse_testrail_template.py` 对 `testcase_addformercase.md` 做格式测试；若解析失败，已先修格式再继续 review。
-- Step 6 review 已检查历史近邻内容对齐、可拆场景拆分、“步骤里藏用例”问题与模板格式，并输出 `testcase_addformercase_reviewed.md`。
-- Step 7 已全文读取 `testcase_addformercase_reviewed.md`，并输出 `test_dimension_gap_analysis.md`，覆盖验收、功能、边界、可靠性、用户场景、压力、规格、兼容性、扩缩容、升级这 10 类维度。
-- Step 8 已全文读取 `testcase_addformercase_reviewed.md` 与 `test_dimension_gap_analysis.md`。
-- Step 8 已读取 `../testcase-pattern-learning/tutorial-all-groups/all-groups-common.md` 与对应组别的 `*-group.md`，并将 pattern 中提示的缺口落实到最终用例。
-- Step 8 review 前已使用 `../testrail-testcase-extract-upload/scripts/parse_testrail_template.py` 对 `testcase_final.md` 做格式测试；若解析失败，已先修格式再继续最终 review。
-- 所有下游 testcase 文件都保留了前一步的全部有效内容，没有出现“后面步骤内容比前面更少”的情况。
-- 每次 review 都检查了“文档 / Jira / 历史近邻 / pattern 暴露出的场景是否全部落点”。
-- 每次 review 都检查了“能拆成多条的 case 是否已经拆开”。
-- 每次 review 都检查了“`【Step1】` 到 `【StepN】` 的步骤里是否藏了多条本应独立的用例”。
-- 最终输出前，已检查并修正与 `references/testrail_default.md` 的格式差异，确保编号层级可按内容需要扩展、名称和描述完整、步骤可按 `【Step1】` 到 `【StepN】` 展开，并且 parser 可成功解析。
-- 最终输出给用户的是 review 后的 `working_dir/testcase_final_reviewed.md` 正文，而不是 draft 或未修订版本。
+- 已完成 Step 0-2，并先做“原始需求分析 + 用户确认 + mode 选择”。
+- `working_dir/workflow_state.json` 已创建，且 mode 与本次任务预期一致。
+- `working_dir/full_read_manifest.md` 已通过脚本持续维护，至少记录了 `step`、`round`、`source_type`、`path`、`scope`、`why_read`。
+- Step 4 已全文读取原始需求文档与 Drive 补充文档，并按需读取了相关产品文档。
+- Step 4 已生成 `working_dir/baseline/testcase_base.md` 与 `working_dir/baseline/testcase_base_reviewed.md`，且 parser 可成功解析。
+- Step 5 如果执行：
+  - 已输出 `working_dir/reports/jira_candidate_summary.md`
+  - 高置信度时直接继续；低置信度时已显式向用户确认
+  - 已输出 `working_dir/delta/delta_step5_jira_reviewed.md`
+- Step 6 如果执行：
+  - 已输出 `working_dir/reports/former_case_route_summary.md`
+  - 已按组别或能力标签缩窄到对应的 `former_cases/*` 根目录，而不是直接全库扫描
+  - 已产出 `working_dir/former_case_selection.md`
+  - 已输出 `working_dir/reports/former_case_gap_summary.md`
+  - 高置信度时直接继续；低置信度时已显式向用户确认
+  - 已输出 `working_dir/delta/delta_step6_former_case_reviewed.md`
+- Step 7 如果执行：
+  - 已输出 `working_dir/reports/pattern_route_summary.md`
+  - 已基于 `product_tags` / `capability_tags` 选择一个或多个组别 pattern，而不是猜最近组
+  - 已读取 `all-groups-common.md` 与对应组别 pattern
+  - 已输出 `working_dir/delta/delta_step7_pattern_reviewed.md`
+- Step 8 已按 mode 的轮次策略完成基础稿 review，并产出：
+  - `working_dir/merged/testcase_basic_assembled.md`
+  - `working_dir/reports/testcase_basic_merge_map.md`
+  - `working_dir/merged/testcase_basic_final.md`
+- Step 9 到 Step 15：
+  - 只执行了与当前 feature 明确相关的专项，或用户显式要求的专项
+  - 每个已执行专项都输出了编号最大的 delta 文件
+  - 每轮都记录了 `new_top_level_scenarios`、`new_leaf_cases`、`deduped_cases`、`continue_or_stop_reason`
+  - 没有无意义地补空轮次
+- Step 16 已使用 merge 脚本生成：
+  - `working_dir/merged/testcase_final.md`
+  - `working_dir/reports/final_merge_map.md`
+- Step 17 已按 mode 的轮次策略完成最终 review，并产出：
+  - `working_dir/merged/testcase_final_reviewed_assembled.md`
+  - `working_dir/reports/final_review_merge_map.md`
+  - `working_dir/merged/testcase_final_reviewed.md`
+- merge 脚本只做了精确去重；任何“标题相似但步骤不同”的 case 没有被静默丢弃。
+- 每一轮 review 都检查了：
+  - 来源覆盖是否完整
+  - 能拆成多条的 case 是否已经拆开
+  - `【Step1】` 到 `【StepN】` 是否还藏着多条本应独立的用例
+  - parser 是否可成功解析
+- 最终输出给用户的是 review 后的 `working_dir/merged/testcase_final_reviewed.md` 正文，而不是 baseline、delta、assembled 稿或未 review 的合并稿。
