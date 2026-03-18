@@ -22,11 +22,10 @@ Do not use this skill for testcase generation itself. Use it after testcase cont
 
 Use this skill for markdown that follows the default TestRail export template used in this repo:
 
-- level-2 headings for top modules
-- level-3 headings for submodules
-- level-4 headings for cases
+- level-2 through level-6 headings for modules, submodules, subsections, and cases
+- testcase leaf nodes may appear at any heading depth that the parser accepts
 - one localized description line under each heading
-- localized step lines under each case
+- one or more localized step lines under each case, such as `【Step1】` through `【StepN】`
 
 Require these inputs before continuing:
 

@@ -25,6 +25,6 @@
 - 所有下游 testcase 文件都保留了前一步的全部有效内容，没有出现“后面步骤内容比前面更少”的情况。
 - 每次 review 都检查了“文档 / Jira / 历史近邻 / pattern 暴露出的场景是否全部落点”。
 - 每次 review 都检查了“能拆成多条的 case 是否已经拆开”。
-- 每次 review 都检查了“`【Step1】`、`【Step2】`、`【Step3】` 里是否藏了多条本应独立的用例”。
-- 最终输出前，已检查并修正与 `references/testrail_default.md` 的格式差异，确保编号层级、名称、描述、`【Step1】`、`【Step2】`、`【Step3】` 均完整，并且 parser 可成功解析。
+- 每次 review 都检查了“`【Step1】` 到 `【StepN】` 的步骤里是否藏了多条本应独立的用例”。
+- 最终输出前，已检查并修正与 `references/testrail_default.md` 的格式差异，确保编号层级可按内容需要扩展、名称和描述完整、步骤可按 `【Step1】` 到 `【StepN】` 展开，并且 parser 可成功解析。
 - 最终输出给用户的是 review 后的 `working_dir/testcase_final_reviewed.md` 正文，而不是 draft 或未修订版本。
