@@ -1,13 +1,13 @@
 ---
 name: testcase-generate
-description: 根据用户提供的需求文档路径、目录路径或 Google Docs URL 生成 SmartX 功能测试用例。适用于“生成测试用例”“根据文档写测试点”“输出 TestRail 格式用例”等请求。流程包括：先归一化输入并在需要时下载 Google Docs、盘点输入文件、分析原始需求并确认产品与关键词、准备 Google Drive 补充文档、强制全量读取需求文档/补充文档/SmartX 产品手册与技术白皮书后直接生成详细 testcase 初稿、再结合 Jira 历史问题、本地历史 testcase 样本、通用测试维度和组别 pattern 逐步补齐并 review，最终输出 TestRail 结构的终稿。
+description: 根据用户提供的需求文档路径、目录路径或 Google Docs URL 生成 SmartX 功能测试用例。适用于“生成测试用例”“根据文档写测试点”“输出 TestRail 格式用例”等请求。流程包括：先归一化输入并在需要时下载 Google Docs、盘点输入文件、分析原始需求并确认产品与关键词、准备 Google Drive 补充文档、强制全量读取用户上传文档与 Drive 补充文档、按需读取 SmartX 产品手册与技术白皮书后直接生成详细 testcase 初稿、再结合 Jira 历史问题、本地历史 testcase 样本、通用测试维度和组别 pattern 逐步补齐并 review，最终输出 TestRail 结构的终稿。
 ---
 
 # Testcase Generate
 
 按以下顺序执行，不要跳步：
 
-**Step 0：归一化输入 -> Step 1：盘点输入文件 -> Step 2：分析原始需求并让用户确认 -> Step 3：准备相关 Drive 文档 -> Step 4：强制全量读取资料并直接生成首版用例 -> Step 5：补充 Jira 用例并 review -> Step 6：补充本地历史近邻用例并让用户确认 -> Step 7：按通用测试维度做缺口分析 -> Step 8：做组别 pattern 学习并输出终稿**
+**Step 0：归一化输入 -> Step 1：盘点输入文件 -> Step 2：分析原始需求并让用户确认 -> Step 3：准备相关 Drive 文档 -> Step 4：强制全量读取用户与 Drive 文档、按需读取 SmartX 产品文档并直接生成首版用例 -> Step 5：补充 Jira 用例并 review -> Step 6：补充本地历史近邻用例并让用户确认 -> Step 7：按通用测试维度做缺口分析 -> Step 8：做组别 pattern 学习并输出终稿**
 
 ## 使用方式
 
@@ -22,10 +22,11 @@ description: 根据用户提供的需求文档路径、目录路径或 Google Do
 
 ## 全量读取与内容递增规则
 
-- 从 Step 4 开始，把“全文读取”视为强制要求，不要只读关键词、标题、摘要或局部片段替代正文。
-- 对进入 Step 4 的原始需求文档、Drive 补充文档、`../smartx-docs-download/markdown_docs` 中选中的相关产品手册、管理指南、用户指南、技术白皮书、特性说明、升级/兼容/规格文档，逐份阅读全文或逐段完整读取提取后的全文。
+- 从 Step 4 开始，把“用户上传文档 + Drive 补充文档全文读取”视为强制要求，不要只读关键词、标题、摘要或局部片段替代正文。
+- 对进入 Step 4 的原始需求文档和 Drive 补充文档，逐份阅读全文或逐段完整读取提取后的全文。
+- 对 `../smartx-docs-download/markdown_docs` 中选中的相关产品手册、管理指南、用户指南、技术白皮书、特性说明、升级/兼容/规格文档，必须读取，但允许按当前 feature 相关章节、相关对象、相关流程、相关限制和相关故障路径按需读取，不要求全文通读整本文档。
 - 对每一步产出的 testcase 文件，下一步必须全文读取，不允许只看标题、部分章节或抽样用例。
-- 从 Step 4 开始维护 `working_dir/full_read_manifest.md`，逐步记录每一步完整读取了哪些资料和哪些 testcase 文件。
+- 从 Step 4 开始维护 `working_dir/full_read_manifest.md`，逐步记录每一步完整读取了哪些资料、按需读取了哪些产品文档章节，以及完整读取了哪些 testcase 文件。
 - 保持下游输入集合单调递增：后一步允许新增资料，不允许把前一步已经纳入的有效正文缩减成更少的内容。
 - 如果某份前序资料在后序步骤被判定为无关，明确说明剔除理由；否则默认继续保留并全文纳入后续分析。
 

@@ -13,48 +13,48 @@ def testrail_default_template_to_json(text: str) -> list[dict]:
     """Convert markdown testcase text to a nested JSON structure."""
     lines = text.replace("\r\n", "\n").split("\n")
     root = {"number": "", "title": "root", "description": "", "children": []}
-    stack = [root]
+    stack: list[tuple[int, dict]] = [(1, root)]
     i = 0
 
     while i < len(lines):
-        stripped = lines[i].strip()
+        stripped = lines[i].lstrip("\ufeff").strip()
         if not stripped:
             i += 1
             continue
 
-        if stripped.startswith("## ") and not stripped.startswith("### "):
-            num, title = _parse_number_title(stripped[3:])
-            node = {"number": num or "", "title": title, "description": "", "children": []}
-            root["children"].append(node)
-            stack = [root, node]
-            i = _consume_description(lines, i + 1, node)
-            continue
+        heading_match = re.match(r"^(#{2,6})\s+(.+)$", stripped)
+        if heading_match:
+            level = len(heading_match.group(1))
+            num, title = _parse_number_title(heading_match.group(2))
+            node = {"number": num or "", "title": title, "description": ""}
 
-        if stripped.startswith("### ") and not stripped.startswith("#### "):
-            num, title = _parse_number_title(stripped[4:])
-            node = {"number": num or "", "title": title, "description": "", "children": []}
-            parent = stack[1] if len(stack) >= 2 else root
-            parent["children"].append(node)
-            stack = [root, stack[1], node] if len(stack) >= 2 else [root, node]
-            i = _consume_description(lines, i + 1, node)
-            continue
-
-        if stripped.startswith("#### "):
-            num, title = _parse_number_title(stripped[5:])
-            node = {"number": num or "", "title": title, "description": "", "steps": []}
-            parent = stack[2] if len(stack) >= 3 else (stack[1] if len(stack) >= 2 else root)
-            if "children" not in parent:
-                parent["children"] = []
-            parent["children"].append(node)
-            i = _consume_description(lines, i + 1, node)
-            while i < len(lines):
-                step_line = lines[i].strip()
-                if step_line.startswith("#"):
+            j = _consume_description(lines, i + 1, node)
+            steps: list[str] = []
+            while j < len(lines):
+                step_line = lines[j].strip()
+                if re.match(r"^#{2,6}\s+", step_line):
                     break
                 step_match = re.match(r"^【Step\s*(\d+)】\s*(.*)$", step_line)
                 if step_match:
-                    node["steps"].append(step_match.group(2).strip())
-                i += 1
+                    steps.append(step_match.group(2).strip())
+                j += 1
+
+            while stack and stack[-1][0] >= level:
+                stack.pop()
+            parent = stack[-1][1] if stack else root
+            if "children" not in parent:
+                parent["children"] = []
+
+            if steps:
+                node["steps"] = steps
+            else:
+                node["children"] = []
+
+            parent["children"].append(node)
+            if node.get("children") is not None:
+                stack.append((level, node))
+
+            i = j
             continue
 
         i += 1

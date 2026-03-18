@@ -4,8 +4,9 @@
 
 - 已完成 Step 0-2，并先做“原始需求分析 + 用户确认”。
 - 已在 Step 3 确认并准备相关 Drive 补充文档。
-- 从 Step 4 开始，已维护 `working_dir/full_read_manifest.md`，并记录每一步全文读取的资料与 testcase 文件。
-- Step 4 已全文读取原始需求文档、Drive 补充文档，以及 `smartx-docs-download/markdown_docs` 中直接相关的产品手册 / 管理指南 / 用户指南 / 技术白皮书 / 相关规格文档。
+- 从 Step 4 开始，已维护 `working_dir/full_read_manifest.md`，并记录每一步全文读取的资料、按需读取的产品文档章节与 testcase 文件。
+- Step 4 已全文读取原始需求文档与 Drive 补充文档。
+- Step 4 已按需读取 `smartx-docs-download/markdown_docs` 中直接相关的产品手册 / 管理指南 / 用户指南 / 技术白皮书 / 相关规格文档，且读取范围足以支撑当前 feature 理解。
 - Step 4 已直接生成 `testcase_1_direct.md`，没有使用 seeds、seed plan 或 gap loop。
 - Step 4 review 已检查文档场景覆盖、可拆场景拆分、“步骤里藏用例”问题与模板格式，并输出 `testcase_1_direct_reviewed.md`。
 - Step 5 已全文读取 `testcase_1_direct_reviewed.md` 和前序正文资料，没有退化成只看摘要或关键词。
