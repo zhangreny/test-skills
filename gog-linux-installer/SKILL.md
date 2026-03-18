@@ -1,6 +1,6 @@
 ---
 name: gog-linux-installer
-description: Use when the user wants to install gogcli on a headless CentOS/RHEL 8 Linux server. This skill covers a Linux-first workflow that installs Homebrew, installs gog from the steipete tap, and completes Google OAuth on a server without a local browser UI.
+description: Use when the user wants to install gogcli on a headless CentOS/RHEL 8 Linux server. This skill covers a Linux-first workflow that installs Homebrew, installs gog from the steipete tap, and completes Google OAuth with gog's manual headless flow on a server without a local browser UI.
 ---
 
 # Gog Linux Installer
@@ -12,7 +12,7 @@ Use it when the user wants a practical server workflow that:
 
 - runs on Linux without a desktop UI
 - installs Homebrew before installing `gog`
-- handles Google OAuth from another machine through SSH port forwarding
+- handles Google OAuth from another machine with gog's manual headless flow
 
 ## Workflow
 
@@ -150,27 +150,21 @@ gog auth credentials /path/to/client_secret.json
 Start the auth flow:
 
 ```bash
-gog auth add yourname@smartx.com --services drive
+gog auth add yourname@smartx.com --services drive --manual
 ```
 
 Expected headless behavior:
 
 - `gog` prints a Google authorization URL
-- after login, Google redirects to `http://127.0.0.1:PORT/oauth2/callback?...`
-- the server is waiting locally on that callback port
+- after login, Google redirects to a localhost callback URL that does not load in the browser
+- `gog` waits for the user to paste the full redirect URL back into the terminal
 
-To complete the callback from another machine with a browser:
+To complete the auth from another machine with a browser:
 
 1. Run `gog auth add ...` on the server and copy the printed authorization URL.
 2. Open the URL on your local machine and sign in to Google.
-3. Note the callback URL and its `PORT`.
-4. From your local machine, create an SSH tunnel to the Linux server:
-
-```bash
-ssh -L PORT:127.0.0.1:PORT user@server-host
-```
-
-5. With the tunnel still open, load the callback URL in the local browser so the request reaches the server.
+3. After Google redirects to the localhost callback URL, copy the full URL from the browser address bar.
+4. Paste that full redirect URL back into the waiting `gog` prompt on the server.
 
 If the user only needs a narrower scope, change the `--services` value accordingly.
 
@@ -186,7 +180,7 @@ gog drive search "周报" --max 10
 
 - Prefer executing the workflow instead of only describing it when the user asks you to install.
 - Keep the explanation short unless the user asks for more detail.
-- On Linux, default to the headless OAuth flow when the machine has no browser UI.
+- On Linux, default to the manual headless OAuth flow when the machine has no browser UI.
 - If the user is already on a non-root working account, skip the user-creation step.
 - If a command fails, report the exact blocker and continue with the narrowest fix.
 - If Homebrew install fails because of missing build dependencies, install the missing packages first instead of switching workflows immediately.
