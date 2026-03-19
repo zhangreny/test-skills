@@ -58,6 +58,12 @@ python scripts/append_full_read_manifest.py --manifest <working_dir/full_read_ma
 python scripts/validate_testrail_case.py --source <testcase 文件绝对路径>
 ```
 
+- 对 Step 9 到 Step 15 的专项 delta 做“资料依据 + 历史近邻 + 收敛记录”校验时，额外使用：
+
+```bash
+python scripts/validate_specialized_delta_context.py --step <9-15> --round <1|2|...> --manifest <working_dir/full_read_manifest.md 的绝对路径> --former-case-selection <working_dir/former_case_selection.md 的绝对路径> --base-testcase <working_dir/merged/testcase_basic_final.md 的绝对路径> --report <working_dir/reports/stepX_*_roundY_evidence.md 的绝对路径> --delta <working_dir/delta/delta_stepX_*_Y.md 的绝对路径> [--previous-delta <上一轮 delta 绝对路径>]
+```
+
 - 做基线与 delta 结构化合并时，优先使用：
 
 ```bash
@@ -83,6 +89,14 @@ python scripts/merge_testcase_variants.py --base <baseline 文件绝对路径> -
 - `working_dir/full_read_manifest.md` 中每条记录至少写清：`step`、`round`（无轮次时写 `base`）、`source_type`、`path`、`scope`、`why_read`。`source_type` 至少区分 `user_upload`、`drive_doc`、`product_doc`、`testcase`、`former_case`、`pattern`、`fault_reference`。
 - 保持“有效合并后范围”单调递增：后一步允许新增资料，不允许把前一步已经确认有效的 testcase 内容无理由丢掉；但 delta 文件本身只保存新增、拆细或修订项，不需要复制整份基线。
 - 如果某份前序资料在后序步骤被判定为无关，明确说明剔除理由；否则默认继续保留并全文纳入后续分析。
+- Step 9 到 Step 15 的每一轮，在写 delta 前必须先输出一份 `working_dir/reports/stepX_*_roundY_evidence.md`，至少包含：
+  - `## 本轮输入清单`
+  - `## 历史近邻继承点`
+  - `## 当前缺口判断`
+  - `## 新增用例与依据映射`
+  - `## 收敛记录`
+- Step 9 到 Step 15 的新增内容，必须能映射回 `full_read_manifest.md` 中已读资料、`former_case_selection.md` 命中的历史样本，以及 Step 15 的 `references/fault/` 文件；不能只凭通用测试维度臆造专项。
+- Step 15 额外强制要求：每一轮都必须全文读取 `references/fault/*.csv` 下全部 CSV 文件里的全部故障场景，不能只挑“看起来相关”的几个文件；并且要把这批文件逐个记到当轮的 `full_read_manifest.md` 与 `step15_fault_round<round>_evidence.md` 里。
 
 ## 参考文件导航
 
@@ -117,6 +131,7 @@ python scripts/merge_testcase_variants.py --base <baseline 文件绝对路径> -
 - 旧 `references/test-design-dimensions.md` 已废弃，不再作为执行入口。
 - Step 8 到 Step 15 以及 Step 17 的每一轮都要明确记录 `new_top_level_scenarios`、`new_leaf_cases`、`deduped_cases` 与 `continue_or_stop_reason`。
 - Step 9 到 Step 15 的中间结果要按步骤自己的文件名保留，不要只在脑中“做过一轮”却不落盘。
+- Step 9 到 Step 15 的每一轮都必须同时落盘 evidence report，并在 parser 通过后再跑 `scripts/validate_specialized_delta_context.py`；若 evidence report 或依据映射不完整，该轮不能算完成。
 - 不要把历史样本、pattern 文档或模板示例直接照抄到最终业务 testcase；只继承场景、矩阵、粒度、工具、命名和范围习惯。
 - 不要跳过 `references/finalcheck.md` 的终稿校验；其中每条“场景记录 / 用例记录”都要过一遍当前终稿，确认已满足、已显式不适用，或已在本轮修正。
 - 没有用户主动触发时，不要改写 `references/finalcheck.md`；用户触发后，也必须先预览待写入内容并拿到确认，再记录稳定偏好和修改结论。

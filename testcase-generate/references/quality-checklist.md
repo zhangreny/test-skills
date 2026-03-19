@@ -30,8 +30,16 @@
 - Step 9 到 Step 15：
   - 只执行了与当前 feature 明确相关的专项，或用户显式要求的专项
   - 每个已执行专项都输出了编号最大的 delta 文件
+  - 每轮都先输出了 `working_dir/reports/stepX_*_roundY_evidence.md`
+  - evidence report 明确列出了本轮重新读取的基础稿 / 上一轮 delta、已读资料、历史近邻样本，以及 Step 15 的故障参考文件
+  - evidence report 里有“新增用例与依据映射”，能把新增场景落回具体来源文件路径
   - 每轮都记录了 `new_top_level_scenarios`、`new_leaf_cases`、`deduped_cases`、`continue_or_stop_reason`
+  - parser 通过后又执行了 `scripts/validate_specialized_delta_context.py`
   - 没有无意义地补空轮次
+- Step 15 如果执行：
+  - 每一轮都全文读取了 `references/fault/*.csv` 下全部 CSV 文件里的全部故障场景，而不是只挑相关文件
+  - 当轮 `full_read_manifest.md` 已把全部 fault CSV 逐个记录为 `source_type: fault_reference`
+  - 当轮 evidence report 的 `本轮输入清单` 已把全部 fault CSV 逐个列出
 - Step 16 已使用 merge 脚本生成：
   - `working_dir/merged/testcase_final.md`
   - `working_dir/reports/final_merge_map.md`
