@@ -39,6 +39,8 @@
   - `working_dir/merged/testcase_final_reviewed_assembled.md`
   - `working_dir/reports/final_review_merge_map.md`
   - `working_dir/merged/testcase_final_reviewed.md`
+- Step 17 已全文读取 `references/finalcheck.md`，并把其中每条“场景记录 / 用例记录”都对照当前终稿过了一遍；需要修正时已输出并合并 `working_dir/delta/delta_step17_finalcheck_review.md`
+- 如果用户主动要求“总结本次修改并沉淀到 finalcheck”，已先预览拟写入内容、明确提示后续会作为额外校验依据、拿到用户确认后才更新 `references/finalcheck.md`，且没有把未确认猜测或整段 testcase 原文直接写进去
 - merge 脚本只做了精确去重；任何“标题相似但步骤不同”的 case 没有被静默丢弃。
 - 每一轮 review 都检查了：
   - 来源覆盖是否完整

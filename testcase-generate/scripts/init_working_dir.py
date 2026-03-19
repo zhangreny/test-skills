@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -49,7 +48,9 @@ def resolve_parent_dir(output_dir: str | None) -> Path:
         parent = Path(output_dir).expanduser().resolve()
         parent.mkdir(parents=True, exist_ok=True)
         return parent
-    return Path(tempfile.gettempdir()).resolve()
+    home_dir = Path.home().resolve()
+    home_dir.mkdir(parents=True, exist_ok=True)
+    return home_dir
 
 
 def build_workflow_state(mode: str, working_dir: Path) -> dict[str, object]:
@@ -85,7 +86,7 @@ def build_workflow_state(mode: str, working_dir: Path) -> dict[str, object]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a testcase-generate working directory.")
     parser.add_argument("--mode", choices=sorted(MODE_PRESETS), default="standard", help="Workflow mode preset.")
-    parser.add_argument("--output-dir", help="Optional parent directory for the generated working directory.")
+    parser.add_argument("--output-dir", help="Optional parent directory for the generated working directory. Defaults to $HOME.")
     parser.add_argument("--prefix", default=".codex-testcase-generate", help="Working directory prefix.")
     args = parser.parse_args()
 
