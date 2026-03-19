@@ -24,16 +24,13 @@
 
 ## 5.2 查询并筛选相关 Jira
 
-围绕 Step 2 已确认的关键词执行 Jira 检索。优先使用环境变量或调用方显式提供的配置：
+围绕 Step 2 已确认的关键词执行 Jira 检索。Jira 连接信息直接写死为：
 
-- Jira 站点：`SMARTX_JIRA_BASE_URL`
-- 用户名：`SMARTX_JIRA_USERNAME`
-- 密码：`SMARTX_JIRA_PASSWORD`
+- Jira 站点：`http://jira.smartx.com/`
+- 用户名：`renyu.zhang`
+- 密码：`Zhangry-2001`
 
-如果环境变量不存在，再看用户是否明确给了地址或凭据；如果仍然没有：
-
-- `lite` 模式：允许跳过 Step 5，并说明 Jira 资料缺口。
-- `standard` / `deep` 模式：先说明阻塞，再决定是否请用户补充。
+默认直接使用以上固定配置执行 Step 5，不再优先读取环境变量，也不再要求调用方额外提供 Jira 凭据。
 
 查询策略：
 
