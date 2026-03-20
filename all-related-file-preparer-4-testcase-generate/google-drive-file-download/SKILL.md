@@ -1,6 +1,6 @@
 ---
 name: google-drive-file-download
-description: 根据 Google Drive 文件 ID 列表，使用 gog CLI 将文件下载到用户指定的本地目录下的 google-drive-file-download 文件夹。通过脚本对每个 ID 单独调用脚本 scripts/drive_download_by_id.py。在用户提到「按 ID 下载 Drive 文件」「把 Drive 文件下载到某目录」「根据文件 id 批量下载」或提供 Drive 文件 id 与目标目录时使用此技能。
+description: 根据 Google Drive 文件 ID 列表，使用 gog CLI 将文件下载到用户指定的本地目录下的 google-drive-file-download 文件夹，下载结果为 markdown 文件。通过脚本对每个 ID 单独调用脚本 scripts/drive_download_by_id.py。在用户提到「按 ID 下载 Drive 文件」「把 Drive 文件下载到某目录」「根据文件 id 批量下载」或提供 Drive 文件 id 与目标目录时使用此技能。
 ---
 
 # Google Drive File Download
@@ -48,7 +48,7 @@ python <SKILL_DIR>/scripts/drive_download_by_id.py --output "<目标目录>/goog
 - 若脚本退出码非 0、运行环境不兼容，或脚本本身不可用，不要直接停止；对当前 ID 改用命令行 fallback：
 
 ```text
-gog drive download "<单个文件ID>" --output "<目标目录>/google-drive-file-download"
+gog drive download "<单个文件ID>" --output "<目标目录>/google-drive-file-download" --format md
 ```
 
 - fallback 时仍然保持“一次只下载一个 ID”，不要把多个 ID 合并到一次命令中

@@ -16,13 +16,39 @@ import os
 import select
 import subprocess
 import sys
-import pty
 import time
 from typing import List, Tuple
+
+try:
+    import pty
+except ModuleNotFoundError:
+    pty = None
+
+
+def _run_gog_without_pty(cmd: List[str], timeout: int, send_enters: bytes = b"\n\n") -> Tuple[int, str, str]:
+    """Fallback for platforms without pty support, such as Windows."""
+    try:
+        proc = subprocess.run(
+            cmd,
+            input=send_enters,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        return (-1, "", "timeout")
+
+    stdout = proc.stdout.decode("utf-8", errors="replace")
+    stderr = proc.stderr.decode("utf-8", errors="replace")
+    combined = "\n".join(part for part in (stdout.strip(), stderr.strip()) if part)
+    return (proc.returncode, stdout, combined)
 
 
 def _run_gog_with_pty(cmd: List[str], timeout: int, send_enters: bytes = b"\n\n") -> Tuple[int, str, str]:
     """在伪终端中执行 cmd，先发送 send_enters，再读取全部输出。返回 (returncode, stdout, stderr 合并后的输出)。"""
+    if pty is None:
+        return _run_gog_without_pty(cmd, timeout=timeout, send_enters=send_enters)
     master, slave = pty.openpty()
     try:
         proc = subprocess.Popen(
@@ -79,13 +105,14 @@ def _run_gog_with_pty(cmd: List[str], timeout: int, send_enters: bytes = b"\n\n"
             pass
 
 
-def download_one(file_id: str, output_dir: str, timeout: int = 120) -> Tuple[bool, str]:
+def download_one(file_id: str, output_dir: str, export_format: str = "md", timeout: int = 120) -> Tuple[bool, str]:
     """执行 gog drive download <id> --output <dir>，返回 (成功, 错误信息)。"""
     if not file_id or not output_dir:
         return False, "file_id 或 output_dir 为空"
     cmd = [
         "gog", "drive", "download", file_id.strip(),
         "--output", output_dir,
+        "--format", export_format,
     ]
     try:
         code, out, _ = _run_gog_with_pty(cmd, timeout=timeout)
@@ -121,6 +148,12 @@ def main() -> None:
         metavar="SEC",
         help="下载超时秒数（默认 120）。",
     )
+    parser.add_argument(
+        "--format",
+        default="md",
+        metavar="FMT",
+        help="Google Docs export format (default: md).",
+    )
     args = parser.parse_args()
 
     output_dir = os.path.expanduser(args.output)
@@ -133,7 +166,8 @@ def main() -> None:
         print("未提供文件 ID。", file=sys.stderr)
         sys.exit(2)
 
-    ok, err = download_one(fid, output_dir, timeout=args.timeout)
+    export_format = (args.format or "md").strip() or "md"
+    ok, err = download_one(fid, output_dir, export_format=export_format, timeout=args.timeout)
     if ok:
         print(f"{fid} 下载成功", file=sys.stderr)
         sys.exit(0)
