@@ -2,7 +2,11 @@
 
 最终输出前逐项确认：
 
-- 已完成 Step 0-2，并先做“原始需求分析 + 用户确认 + mode 选择”。
+- 已完成 Step 0-2，并先做“input-manifest 记录 + 输入范围确认 + 原始需求分析 + mode 选择”。
+- 在进入 Step 3 前，已向用户完整展示 `lite` / `standard` / `deep` 三种模式会走的步骤，并拿到用户明确选择，或拿到“按推荐 mode 继续”的明确授权。
+- 在调用 `all-related-file-preparer-4-testcase-generate` 前，已显式询问用户是否需要根据关键词去 Google Drive 搜索关联文档。
+- 如果用户选择不需要，Step 3 已跳过 Drive 搜索子 skill，后续只使用当前已上传 / 已确认文档继续生成。
+- 如果出现过 Google Docs 下载失败，已明确告知失败链接 / id，要求用户手动上传对应 Markdown，并在继续前完成 `input-manifest.json` 回写与重新确认。
 - `working_dir/workflow_state.json` 已创建，且 mode 与本次任务预期一致。
 - `working_dir/full_read_manifest.md` 已通过脚本持续维护，至少记录了 `step`、`round`、`source_type`、`path`、`scope`、`why_read`。
 - Step 4 已全文读取原始需求文档与 Drive 补充文档，并按需读取了相关产品文档。

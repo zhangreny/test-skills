@@ -54,6 +54,7 @@ gog drive download "<单个文件ID>" --output "<目标目录>/google-drive-file
 - fallback 时仍然保持“一次只下载一个 ID”，不要把多个 ID 合并到一次命令中
 - 如果某个 ID 的命令行 fallback 成功，则继续处理下一个 ID
 - 只有脚本和命令行都失败时，才把该 ID 记为失败并汇总错误信息反馈给用户
+- 如果失败项对应的是 Google Docs / Google Drive 文档类文件，必须额外明确告诉用户：该文档没有成功转成 Markdown 落到本地，需要用户手动导出并上传对应 Markdown 文件，不能假设下载已完成
 
 ### 步骤 3：反馈结果与错误
 
@@ -71,6 +72,12 @@ gog drive download "<单个文件ID>" --output "<目标目录>/google-drive-file
 
 并说明可针对失败 ID 再次执行本技能进行重试。
 
+如果失败项是 Google Docs / Google Drive 文档类文件，除了上面的错误表，还必须明确补充：
+
+- 这些失败项当前没有可用的本地 Markdown 下载结果。
+- 用户需要手动导出并上传这些失败链接 / ID 对应的 Markdown 文件。
+- 如果当前上游流程维护 `input-manifest.json`，拿到上传文件后，应把失败 URL 从 `google doc url` 移除，并把 Markdown 本地路径写入 `uploaded files by agent`，再回到输入确认步骤重新执行。
+
 ## 错误处理速查
 
 | 场景 | 处理方式 |
@@ -80,7 +87,7 @@ gog drive download "<单个文件ID>" --output "<目标目录>/google-drive-file
 | 目标目录不存在 | 报错并停止，不执行下载 |
 | 脚本不存在 | 直接尝试 `gog drive download` 命令行 |
 | 脚本返回非零 | 对失败 ID 先尝试 `gog drive download` 命令行 |
-| 命令行 fallback 失败 | 捕获 stderr，将每个失败 ID 及对应错误反馈给用户，建议重试 |
+| 命令行 fallback 失败 | 捕获 stderr，将每个失败 ID 及对应错误反馈给用户；若失败项是 Google Docs / Drive 文档，则明确要求用户手动上传对应 Markdown，并在上游流程中更新 `input-manifest.json` 后再继续 |
 | 未找到 gog 命令 | 提示用户安装 gog 并完成 Drive 授权 |
 
 ## 与 keyword-related-file-from-google-drive 配合

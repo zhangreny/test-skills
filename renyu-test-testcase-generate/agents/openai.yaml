@@ -1,4 +1,0 @@
-interface:
-  display_name: "Renyu Testcase Intake"
-  short_description: "统一输入并确认测试用例生成资料，支持路径、目录、Google Docs 与上传文件。"
-  default_prompt: "Use $renyu-test-testcase-generate to normalize my testcase inputs, stage the files, and wait for my confirmation before continuing."

@@ -148,6 +148,17 @@ description: 根据需求文档准备测试用例生成所需的相关 Google Dr
 
 按该技能要求逐个调用下载脚本，收集成功、失败和具体错误。
 
+如果其中包含 Google Docs / Google Drive 文档类文件下载失败，必须额外执行以下规则：
+
+- 明确列出失败的文件 id、可回溯链接和错误信息。
+- 明确告诉用户：这些文档没有成功转成 Markdown 落到本地，当前不能假设它们已可用于后续 testcase 生成。
+- 明确要求用户：手动导出并上传这些失败链接对应的 Markdown 文件。
+- 如果本技能是被维护 `input-manifest.json` 的上游流程调用，例如 `../testcase-generate/SKILL.md`，则在拿到上传文件后：
+  - 从 `google doc url` 中移除失败链接
+  - 把上传 Markdown 的绝对路径写入 `uploaded files by agent`
+  - 回到上游的输入确认步骤重新确认，再继续后续流程
+- 如果本技能是直接使用、没有 `input-manifest.json`，则明确要求用户给出这些 Markdown 文件的本地路径或直接重新上传，不要带着失败项继续假设资料完整。
+
 ### 4.3 输出并确认
 
 - 按下载技能的规范展示下载结果。
