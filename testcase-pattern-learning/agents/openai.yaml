@@ -1,0 +1,8 @@
+interface:
+  display_name: "Testcase Pattern Learning"
+  short_description: "Learn reusable testcase-writing rules from historical TestRail cases and grouped markdown exports."
+  brand_color: "#0F766E"
+  default_prompt: "Use $testcase-pattern-learning to derive reusable testcase-writing rules from historical TestRail exports."
+
+policy:
+  allow_implicit_invocation: true

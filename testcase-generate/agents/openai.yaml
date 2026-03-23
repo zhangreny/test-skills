@@ -1,0 +1,8 @@
+interface:
+  display_name: "SmartX Testcase Generate"
+  short_description: "先确认本轮输入资料，再按 lite / standard / deep 模式生成 SmartX TestRail 测试用例，并在终稿前执行 finalcheck 记忆校验。"
+  brand_color: "#2563EB"
+  default_prompt: "Use $testcase-generate to intake my SmartX requirement files, folders, uploads, or Google Docs links, confirm the input scope, choose the right workflow mode, generate TestRail-style testcases, and run the finalcheck memory review before returning the final draft."
+
+policy:
+  allow_implicit_invocation: true
