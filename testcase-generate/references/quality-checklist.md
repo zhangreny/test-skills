@@ -2,57 +2,50 @@
 
 最终输出前逐项确认：
 
-- 已完成 Step 0-2，并先做“input-manifest 记录 + 输入范围确认 + 原始需求分析 + mode 选择”。
-- 在进入 Step 3 前，已向用户完整展示 `lite` / `standard` / `deep` 三种模式会走的步骤，并拿到用户明确选择，或拿到“按推荐 mode 继续”的明确授权。
+- 已完成 Step 0-2，并先做 `input-manifest` 记录、输入范围确认、原始需求分析，以及“固定完整流程”的说明。
+- 在进入 Step 3 前，已向用户明确说明后续会直接执行完整 Step 0-17，不再要求用户做 workflow 分级选择。
 - 在调用 `all-related-file-preparer-4-testcase-generate` 前，已显式询问用户是否需要根据关键词去 Google Drive 搜索关联文档。
-- 如果用户选择不需要，Step 3 已跳过 Drive 搜索子 skill，后续只使用当前已上传 / 已确认文档继续生成。
-- 如果出现过 Google Docs 下载失败，已明确告知失败链接 / id，要求用户手动上传对应 Markdown，并在继续前完成 `input-manifest.json` 回写与重新确认。
-- `working_dir/workflow_state.json` 已创建，且 mode 与本次任务预期一致。
-- `working_dir/full_read_manifest.md` 已通过脚本持续维护，至少记录了 `step`、`round`、`source_type`、`path`、`scope`、`why_read`。
-- Step 4 已全文读取原始需求文档与 Drive 补充文档，并按需读取了相关产品文档。
+- 如果用户选择不需要，Step 3 已跳过 Drive 搜索子 skill，后续只使用当前已上传或已确认文档继续生成。
+- 如果出现 Google Docs 下载失败，已明确告知失败链接或 id，要求用户手动上传对应 Markdown，并在继续前完成 `input-manifest.json` 回写与重新确认。
+- `working_dir/workflow_state.json` 已创建，且其 `required_steps` 为 Step 0-17 全量步骤，`optional_steps` 为空。
+- `working_dir/full_read_manifest.md` 已持续维护，至少记录了 `step`、`round`、`source_type`、`path`、`scope`、`why_read`。
+- Step 4 已全文读取原始需求文档与 Drive 补充文档，并按需读取相关产品文档。
 - Step 4 已生成 `working_dir/baseline/testcase_base.md` 与 `working_dir/baseline/testcase_base_reviewed.md`，且 parser 可成功解析。
-- Step 5 如果执行：
-  - 已输出 `working_dir/reports/jira_candidate_summary.md`
-  - 高置信度时直接继续；低置信度时已显式向用户确认
-  - 已输出 `working_dir/delta/delta_step5_jira_reviewed.md`
-- Step 6 如果执行：
-  - 已输出 `working_dir/reports/former_case_route_summary.md`
-  - 已按组别或能力标签缩窄到对应的 `former_cases/*` 根目录，而不是直接全库扫描
-  - 已产出 `working_dir/former_case_selection.md`
-  - 已输出 `working_dir/reports/former_case_gap_summary.md`
-  - 高置信度时直接继续；低置信度时已显式向用户确认
-  - 已输出 `working_dir/delta/delta_step6_former_case_reviewed.md`
-- Step 7 如果执行：
-  - 已输出 `working_dir/reports/pattern_route_summary.md`
-  - 已基于 `product_tags` / `capability_tags` 选择一个或多个组别 pattern，而不是猜最近组
-  - 已读取 `all-groups-common.md` 与对应组别 pattern
-  - 已输出 `working_dir/delta/delta_step7_pattern_reviewed.md`
-- Step 8 已按 mode 的轮次策略完成基础稿 review，并产出：
+- Step 5 已执行，并输出：
+  - `working_dir/reports/jira_candidate_summary.md`
+  - `working_dir/delta/delta_step5_jira_reviewed.md`
+- Step 6 已执行，并输出：
+  - `working_dir/reports/former_case_route_summary.md`
+  - `working_dir/former_case_selection.md`
+  - `working_dir/reports/former_case_gap_summary.md`
+  - `working_dir/delta/delta_step6_former_case_reviewed.md`
+- Step 7 已执行，并输出：
+  - `working_dir/reports/pattern_route_summary.md`
+  - `working_dir/delta/delta_step7_pattern_reviewed.md`
+- Step 8 已按 `workflow_state.json` 的 `round_policy.step_8` 完成基础稿 review，并产出：
   - `working_dir/merged/testcase_basic_assembled.md`
   - `working_dir/reports/testcase_basic_merge_map.md`
   - `working_dir/merged/testcase_basic_final.md`
-- Step 9 到 Step 15：
-  - 只执行了与当前 feature 明确相关的专项，或用户显式要求的专项
-  - 每个已执行专项都输出了编号最大的 delta 文件
-  - 每轮都先输出了 `working_dir/reports/stepX_*_roundY_evidence.md`
-  - evidence report 明确列出了本轮重新读取的基础稿 / 上一轮 delta、已读资料、历史近邻样本，以及 Step 15 的故障参考文件
-  - evidence report 里有“新增用例与依据映射”，能把新增场景落回具体来源文件路径
+- Step 9 到 Step 15 均已执行。
+  - 每一步都至少产出了一份 `working_dir/reports/stepX_*_roundY_evidence.md`
+  - 每一步都产出了对应的 delta 文件；如果该步最终无新增 case，也有“已执行但无新增”的收敛记录
+  - evidence report 明确列出本轮重新读取的基础稿、上一轮 delta、已读资料、历史近邻样本，以及 Step 15 的故障参考文件
+  - evidence report 里有“新增用例与依据映射”，能够把新增场景落回具体来源文件路径
   - 每轮都记录了 `new_top_level_scenarios`、`new_leaf_cases`、`deduped_cases`、`continue_or_stop_reason`
   - parser 通过后又执行了 `scripts/validate_specialized_delta_context.py`
-  - 没有无意义地补空轮次
-- Step 15 如果执行：
-  - 每一轮都全文读取了 `references/fault/*.csv` 下全部 CSV 文件里的全部故障场景，而不是只挑相关文件
+- Step 15 已执行，并满足：
+  - 每一轮都全文读取了 `references/fault/*.csv` 下全部 CSV 文件中的全部故障场景
   - 当轮 `full_read_manifest.md` 已把全部 fault CSV 逐个记录为 `source_type: fault_reference`
-  - 当轮 evidence report 的 `本轮输入清单` 已把全部 fault CSV 逐个列出
+  - 当轮 evidence report 的“本轮输入清单”已把全部 fault CSV 逐个列出
 - Step 16 已使用 merge 脚本生成：
   - `working_dir/merged/testcase_final.md`
   - `working_dir/reports/final_merge_map.md`
-- Step 17 已按 mode 的轮次策略完成最终 review，并产出：
+- Step 17 已按 `workflow_state.json` 的 `round_policy.step_17` 完成最终 review，并产出：
   - `working_dir/merged/testcase_final_reviewed_assembled.md`
   - `working_dir/reports/final_review_merge_map.md`
   - `working_dir/merged/testcase_final_reviewed.md`
 - Step 17 已全文读取 `references/finalcheck.md`，并把其中每条“场景记录 / 用例记录”都对照当前终稿过了一遍；需要修正时已输出并合并 `working_dir/delta/delta_step17_finalcheck_review.md`
-- 如果用户主动要求“总结本次修改并沉淀到 finalcheck”，已先预览拟写入内容、明确提示后续会作为额外校验依据、拿到用户确认后才更新 `references/finalcheck.md`，且没有把未确认猜测或整段 testcase 原文直接写进去
+- 如果用户主动要求“总结本次修改并沉淀到 finalcheck”，已先预览拟写入内容，拿到确认后才更新 `references/finalcheck.md`
 - merge 脚本只做了精确去重；任何“标题相似但步骤不同”的 case 没有被静默丢弃。
 - 每一轮 review 都检查了：
   - 来源覆盖是否完整

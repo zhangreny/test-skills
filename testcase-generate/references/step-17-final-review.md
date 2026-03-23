@@ -110,4 +110,4 @@ python scripts/merge_testcase_variants.py --base <working_dir/merged/testcase_fi
 - 这是最终返回给用户的正文。
 - 如果 `delta_step17_finalcheck_review.md` 存在，把它和前面各轮 Step 17 review delta 一并纳入 merge 输入。
 - 不要返回 baseline、delta、各专项中间稿、`testcase_final.md` 或其他未修订版本。
-- 如果第三轮后仍满足继续条件且 mode 允许，继续输出 `delta_step17_final_review_4.md`、`delta_step17_final_review_5.md`，直到硬收敛。
+- 如果第三轮后仍满足继续条件且未触达 `max_rounds`，继续输出 `delta_step17_final_review_4.md`、`delta_step17_final_review_5.md`，直到硬收敛。

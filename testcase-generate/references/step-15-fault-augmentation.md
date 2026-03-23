@@ -76,5 +76,5 @@ python scripts/validate_specialized_delta_context.py --step 15 --round <round> -
 - `新增用例与依据映射` 可以只挑真正支撑当前 delta 的 fault 场景做映射，但前提仍然是全部 fault CSV 已在本轮完整读取并记录。
 - 每一轮都记录 `new_top_level_scenarios`、`new_leaf_cases`、`deduped_cases`、`continue_or_stop_reason`。
 - 符合硬收敛条件时立即停止，不要机械地补空轮次。
-- 如果第三轮后仍满足继续条件且 mode 允许，继续输出 `delta_step15_fault_4.md`、`delta_step15_fault_5.md`，直到硬收敛。
+- 如果第三轮后仍满足继续条件且未触达 `max_rounds`，继续输出 `delta_step15_fault_4.md`、`delta_step15_fault_5.md`，直到硬收敛。
 - Step 16 默认读取本步骤编号最大的 `delta_step15_fault_*.md` 作为故障专项 delta。

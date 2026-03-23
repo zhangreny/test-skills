@@ -1,48 +1,23 @@
 ---
 name: testcase-generate
-description: 根据用户提供的需求文档路径、目录路径、Google Docs URL 或上传文件生成 SmartX 功能测试用例。先在 Downloads 下创建工作目录并写入 `input-manifest.json`，展开并确认本轮输入资料后，再进入原始需求分析、Drive/Jira/历史近邻/pattern 增补与最终 TestRail 用例生成。支持 `lite` / `standard` / `deep` 三种工作模式：`lite` 聚焦基础覆盖并只在有明确信号时追加专项，`standard` 默认执行输入分析、Jira/历史近邻/pattern 增补并按风险选择专项，`deep` 进一步提高多轮 review 与专项增强深度。终稿前强制读取 `references/finalcheck.md` 做类似用户记忆的逐项校验，并在用户明确要求时把本轮修改总结沉淀回该文档。适用于“生成测试用例”“根据文档写测试点”“输出 TestRail 格式用例”等请求。
+description: 根据用户提供的需求文档路径、目录路径、Google Docs URL 或上传文件生成 SmartX 功能测试用例。先在 Downloads 下创建工作目录并写入 `input-manifest.json`，展开并确认本轮输入资料后，再进入原始需求分析、Drive/Jira/历史近邻/pattern 增补与最终 TestRail 用例生成。固定执行完整流程，不再提供分级模式；默认依次执行 Step 0-17，并在 Step 5-15 产出各类 delta、在终稿前强制读取 `references/finalcheck.md` 做类似用户记忆的逐项校验。适用于“生成测试用例”“根据文档写测试点”“输出 TestRail 格式用例”等请求。
 ---
 
 # Testcase Generate
 
-按以下顺序执行，不要跳步；先在 Step 2 结束前锁定 workflow mode：
+按以下顺序执行，不要跳步；直接执行完整 workflow，不再做分级选择：
 
-**Step 0：创建输入工作目录并写入 `input-manifest.json` -> Step 1：检查输入并确认本轮资料范围 -> Step 2：分析原始需求并确认产品 / 关键词 / mode -> Step 3：先询问是否需要按关键词补充 Google Drive 关联文档，再按用户选择处理 -> Step 4：初始化 working_dir、全文读取资料并生成 baseline -> Step 5：补充 Jira delta -> Step 6：补充本地历史近邻 delta -> Step 7：补充组别 pattern delta -> Step 8：合并 baseline 与前置 delta，细化并输出 `merged/testcase_basic_final.md` -> Step 9：边界专项 delta -> Step 10：兼容性专项 delta -> Step 11：压力专项 delta -> Step 12：用户场景专项 delta -> Step 13：升级专项 delta -> Step 14：扩缩容专项 delta -> Step 15：故障专项 delta -> Step 16：结构化合并 baseline 与各专项 delta -> Step 17：review、执行 finalcheck 记忆校验并输出终稿**
+**Step 0：创建输入工作目录并写入 `input-manifest.json` -> Step 1：检查输入并确认本轮资料范围 -> Step 2：分析原始需求并确认产品 / 关键词 -> Step 3：先询问是否需要按关键词补充 Google Drive 关联文档，再按用户选择处理 -> Step 4：初始化 working_dir、全文读取资料并生成 baseline -> Step 5：补充 Jira delta -> Step 6：补充本地历史近邻 delta -> Step 7：补充组别 pattern delta -> Step 8：合并 baseline 与前置 delta，细化并输出 `merged/testcase_basic_final.md` -> Step 9：边界专项 delta -> Step 10：兼容性专项 delta -> Step 11：压力专项 delta -> Step 12：用户场景专项 delta -> Step 13：升级专项 delta -> Step 14：扩缩容专项 delta -> Step 15：故障专项 delta -> Step 16：结构化合并 baseline 与各专项 delta -> Step 17：review、执行 finalcheck 记忆校验并输出终稿**
 
-## Workflow Mode
+## Fixed Workflow
 
-- Step 2 汇报分析结果时，必须把 `lite` / `standard` / `deep` 三种模式同时展示给用户选择，不要只给推荐 mode 就直接继续。
-- 展示 mode 时，必须明确写出每种模式“会走哪些步骤、默认跳过哪些步骤、适合什么场景”。
-- 只有在用户明确选择某个 mode 后，才能进入 Step 3 及后续流程。
-- 如果用户明确表示“你定”“按你推荐的来”之类授权语义，才可以代替用户选择推荐 mode；否则不要默认选 `standard`。
-- `lite`：会走 Step 0-4、Step 8、Step 16、Step 17。
-  - 会做的内容：
-    - Step 0-2：整理输入、确认本轮资料范围、分析需求并确认产品 / 关键词 / mode
-    - Step 3：先问用户要不要按关键词补充 Google Drive 关联文档；如果用户不需要，就只使用当前已上传 / 已确认的文档继续
-    - Step 4：全文读取需求和补充资料，生成第一版 baseline testcase
-    - Step 8：review 并细化基础稿，产出 `testcase_basic_final.md`
-    - Step 16：把当前已有结果合并成最终稿
-    - Step 17：做最终 review，并执行 finalcheck 记忆校验后输出终稿
-  - Step 5-7 与 Step 9-15 默认不执行，只有用户明确要求，或文档出现强信号时才追加。
-  - 适合先快速得到一版基础覆盖。
-- `standard`：会走 Step 0-8、Step 16、Step 17。
-  - 会做的内容：
-    - 包含 `lite` 的全部内容
-    - Step 5：补充 Jira 里的新增场景和历史问题线索
-    - Step 6：补充本地历史近邻 testcase 的可复用场景
-    - Step 7：补充组别 pattern 和常见写法习惯
-  - Step 5-7 默认执行，Step 9-15 只执行与 feature 明确相关的专项步骤。
-  - 适合大多数常规需求，既补 Jira / 历史近邻 / pattern，又不过度展开所有专项。
-- `deep`：会走 Step 0-8、Step 16、Step 17，并把 Step 9-15 中所有“可适用”的专项都做深一层。
-  - 会做的内容：
-    - 包含 `standard` 的全部内容
-    - Step 9-15：尽量补全边界、兼容性、压力、用户场景、升级、扩缩容、故障等专项 testcase
-  - Step 8 和 Step 17 的 review 轮次也默认更高。
-  - 适合高风险、跨模块、涉及升级 / 兼容 / 故障 / 容量等复杂需求。
+- 不再让用户在不同 workflow 档位之间选择；默认直接执行完整 Step 0-17。
+- Step 2 只确认分析结果本身：功能摘要、主体产品、`core_keywords`、`expansion_keywords` 与不确定点，不再确认 workflow 分级。
+- Step 5-7 与 Step 9-15 默认全部执行；如果某一步经资料核对后确认没有新增有效 delta，也要保留 evidence / 收敛说明，而不是把该步骤当作未执行。
 - 进入 Step 4 前，先运行：
 
 ```bash
-python scripts/init_working_dir.py --mode <lite|standard|deep> --existing-workdir <Step 0 创建的 working_dir 绝对路径>
+python scripts/init_working_dir.py --existing-workdir <Step 0 创建的 working_dir 绝对路径>
 ```
 
 - `scripts/init_working_dir.py` 会创建：
@@ -103,7 +78,7 @@ python scripts/merge_testcase_variants.py --base <baseline 文件绝对路径> -
 - 所有多轮步骤都使用同一套硬收敛规则：
   - 连续两轮 `new_top_level_scenarios = 0` 且 `new_leaf_cases = 0` 时停止。
   - 当前轮 `new_leaf_cases < 3` 且没有未解决 blocker 时停止。
-  - 到达当前 mode 的 `max_rounds` 时停止。
+- 到达当前步骤配置的 `max_rounds` 时停止。
   - 只有在出现新的一级场景、当前轮净新增叶子 case 不少于 3、或仍有未解决 blocker 时，才继续下一轮。
 - Step 5-15 默认产出 delta 文件，不要把完整 baseline 一遍遍复制到后续步骤。
 - Step 8、Step 16、Step 17 才产出结构化合并后的完整 testcase 快照。

@@ -5,6 +5,19 @@ description: 根据需求文档准备测试用例生成所需的相关 Google Dr
 
 # All Related File Preparer for Testcase Generate
 
+## Markdown cleanup rule
+
+When Step 4 downloads Google Docs / Drive files as markdown, the flow must also
+run:
+
+```text
+python google-drive-file-download/scripts/strip_markdown_base64_images.py "<download_dir>/google-drive-file-download"
+```
+
+This cleanup is mandatory for both the normal download script path and the
+fallback `gog drive download ... --format md` path, so embedded base64 image
+reference blocks do not bloat the markdown output.
+
 按顺序执行：
 
 **Step 1：校验文件 -> Step 2：拿到已确认的分析结果 -> Step 3：搜索并确认相关 Drive 文件 -> Step 4：下载到本地**

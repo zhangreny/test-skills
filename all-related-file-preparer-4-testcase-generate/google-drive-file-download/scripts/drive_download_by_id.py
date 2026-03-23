@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 """
-对单个 Google Drive 文件 ID 执行 gog drive download，将文件下载到指定目录。
+Download a single Google Drive file ID with `gog drive download`.
 
-gog 可能提示 "Enter passphrase to unlock keyring"，脚本通过 PTY 自动发送两次回车。
-批量下载时由调用方循环，每次传入一个 --id，便于定位失败并重试。
-
-用法:
-  python drive_download_by_ids.py --output /path/to/dir --id <文件ID>
-
-退出码: 0 表示成功，非 0 表示失败（错误详情在 stderr）。
+This script keeps the "one ID per invocation" contract so callers can retry
+individual failures. When markdown export succeeds, it also strips embedded
+base64 image reference blocks from the changed markdown files.
 """
 
 import argparse
@@ -17,7 +13,10 @@ import select
 import subprocess
 import sys
 import time
-from typing import List, Tuple
+from pathlib import Path
+from typing import Dict, List, Tuple
+
+from strip_markdown_base64_images import clean_markdown_paths
 
 try:
     import pty
@@ -25,7 +24,9 @@ except ModuleNotFoundError:
     pty = None
 
 
-def _run_gog_without_pty(cmd: List[str], timeout: int, send_enters: bytes = b"\n\n") -> Tuple[int, str, str]:
+def _run_gog_without_pty(
+    cmd: List[str], timeout: int, send_enters: bytes = b"\n\n"
+) -> Tuple[int, str, str]:
     """Fallback for platforms without pty support, such as Windows."""
     try:
         proc = subprocess.run(
@@ -45,10 +46,13 @@ def _run_gog_without_pty(cmd: List[str], timeout: int, send_enters: bytes = b"\n
     return (proc.returncode, stdout, combined)
 
 
-def _run_gog_with_pty(cmd: List[str], timeout: int, send_enters: bytes = b"\n\n") -> Tuple[int, str, str]:
-    """在伪终端中执行 cmd，先发送 send_enters，再读取全部输出。返回 (returncode, stdout, stderr 合并后的输出)。"""
+def _run_gog_with_pty(
+    cmd: List[str], timeout: int, send_enters: bytes = b"\n\n"
+) -> Tuple[int, str, str]:
+    """Run the command in a pty when supported so gog keyring prompts can pass."""
     if pty is None:
         return _run_gog_without_pty(cmd, timeout=timeout, send_enters=send_enters)
+
     master, slave = pty.openpty()
     try:
         proc = subprocess.Popen(
@@ -68,8 +72,8 @@ def _run_gog_with_pty(cmd: List[str], timeout: int, send_enters: bytes = b"\n\n"
         deadline = time.monotonic() + timeout
         while True:
             remaining = max(0.01, deadline - time.monotonic())
-            r, _, _ = select.select([master], [], [], remaining)
-            if not r:
+            ready, _, _ = select.select([master], [], [], remaining)
+            if not ready:
                 proc.kill()
                 proc.wait()
                 return (proc.returncode or -1, "", "timeout")
@@ -90,8 +94,9 @@ def _run_gog_with_pty(cmd: List[str], timeout: int, send_enters: bytes = b"\n\n"
                 except (OSError, BlockingIOError):
                     pass
                 break
+
         proc.wait()
-        out = (b"".join(out_chunks)).decode("utf-8", errors="replace")
+        out = b"".join(out_chunks).decode("utf-8", errors="replace")
         return (proc.returncode or 0, out, out)
     finally:
         if slave is not None:
@@ -105,73 +110,137 @@ def _run_gog_with_pty(cmd: List[str], timeout: int, send_enters: bytes = b"\n\n"
             pass
 
 
-def download_one(file_id: str, output_dir: str, export_format: str = "md", timeout: int = 120) -> Tuple[bool, str]:
-    """执行 gog drive download <id> --output <dir>，返回 (成功, 错误信息)。"""
+def _snapshot_markdown_files(output_dir: str) -> Dict[str, Tuple[int, int]]:
+    snapshot: Dict[str, Tuple[int, int]] = {}
+    for path in Path(output_dir).rglob("*"):
+        if path.is_file() and path.suffix.lower() in {".md", ".markdown"}:
+            stat = path.stat()
+            snapshot[str(path.resolve())] = (stat.st_mtime_ns, stat.st_size)
+    return snapshot
+
+
+def _find_changed_markdown_files(
+    before: Dict[str, Tuple[int, int]], output_dir: str
+) -> List[str]:
+    after = _snapshot_markdown_files(output_dir)
+    changed = sorted(
+        path for path, meta in after.items() if before.get(path) != meta
+    )
+    if changed:
+        return changed
+    return sorted(after)
+
+
+def _cleanup_downloaded_markdown(
+    output_dir: str, before: Dict[str, Tuple[int, int]]
+) -> Tuple[bool, str]:
+    candidates = _find_changed_markdown_files(before, output_dir)
+    if not candidates:
+        return True, ""
+
+    cleaned_files, removed_blocks, errors = clean_markdown_paths(candidates)
+    if errors:
+        details = "; ".join(f"{path}: {message}" for path, message in errors)
+        return False, details
+
+    if cleaned_files or removed_blocks:
+        print(
+            f"post-processed {len(cleaned_files)} markdown file(s), "
+            f"removed {removed_blocks} embedded image block(s)",
+            file=sys.stderr,
+        )
+    return True, ""
+
+
+def download_one(
+    file_id: str, output_dir: str, export_format: str = "md", timeout: int = 120
+) -> Tuple[bool, str]:
+    """Run `gog drive download <id> --output <dir>`."""
     if not file_id or not output_dir:
-        return False, "file_id 或 output_dir 为空"
+        return False, "file_id or output_dir is empty"
+
     cmd = [
-        "gog", "drive", "download", file_id.strip(),
-        "--output", output_dir,
-        "--format", export_format,
+        "gog",
+        "drive",
+        "download",
+        file_id.strip(),
+        "--output",
+        output_dir,
+        "--format",
+        export_format,
     ]
+
+    before = _snapshot_markdown_files(output_dir)
+
     try:
         code, out, _ = _run_gog_with_pty(cmd, timeout=timeout)
-        if code == 0:
-            return True, ""
-        return False, out.strip() or f"退出码 {code}"
+        if code != 0:
+            return False, out.strip() or f"exit code {code}"
+
+        if export_format.lower() == "md":
+            cleaned, cleanup_error = _cleanup_downloaded_markdown(output_dir, before)
+            if not cleaned:
+                return False, f"download succeeded but cleanup failed: {cleanup_error}"
+
+        return True, ""
     except FileNotFoundError:
-        return False, "未找到 gog 命令，请先安装 gog CLI"
-    except Exception as e:
-        return False, str(e)
+        return False, "gog command not found; install gog CLI first"
+    except Exception as exc:
+        return False, str(exc)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="按 Google Drive 文件 ID 下载单个文件到指定目录。",
+        description="Download one Google Drive file ID into the target directory."
     )
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         required=True,
         metavar="DIR",
-        help="下载目标目录。",
+        help="Target directory for the downloaded file.",
     )
     parser.add_argument(
         "--id",
         required=True,
         metavar="ID",
-        help="要下载的文件 ID。",
+        help="Google Drive file ID to download.",
     )
     parser.add_argument(
         "--timeout",
         type=int,
         default=120,
         metavar="SEC",
-        help="下载超时秒数（默认 120）。",
+        help="Download timeout in seconds. Default: 120.",
     )
     parser.add_argument(
         "--format",
         default="md",
         metavar="FMT",
-        help="Google Docs export format (default: md).",
+        help="Google Docs export format. Default: md.",
     )
     args = parser.parse_args()
 
     output_dir = os.path.expanduser(args.output)
     if not os.path.isdir(output_dir):
-        print(f"错误：输出目录不存在或不是目录: {output_dir}", file=sys.stderr)
+        print(
+            f"Error: output directory does not exist or is not a directory: {output_dir}",
+            file=sys.stderr,
+        )
         sys.exit(2)
 
-    fid = (args.id or "").strip()
-    if not fid:
-        print("未提供文件 ID。", file=sys.stderr)
+    file_id = (args.id or "").strip()
+    if not file_id:
+        print("Error: missing file ID.", file=sys.stderr)
         sys.exit(2)
 
     export_format = (args.format or "md").strip() or "md"
-    ok, err = download_one(fid, output_dir, export_format=export_format, timeout=args.timeout)
+    ok, err = download_one(file_id, output_dir, export_format=export_format, timeout=args.timeout)
     if ok:
-        print(f"{fid} 下载成功", file=sys.stderr)
+        print(f"{file_id} downloaded successfully", file=sys.stderr)
         sys.exit(0)
-    print(f"{fid} 失败: {err}", file=sys.stderr)
+
+    print(f"{file_id} failed: {err}", file=sys.stderr)
     sys.exit(1)
 
 

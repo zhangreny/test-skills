@@ -73,5 +73,5 @@ python scripts/validate_specialized_delta_context.py --step 11 --round <round> -
   - `## 收敛记录`
 - 每一轮都记录 `new_top_level_scenarios`、`new_leaf_cases`、`deduped_cases`、`continue_or_stop_reason`。
 - 符合硬收敛条件时立即停止，不要机械地补空轮次。
-- 如果第三轮后仍满足继续条件且 mode 允许，继续输出 `delta_step11_stress_4.md`、`delta_step11_stress_5.md`，直到硬收敛。
+- 如果第三轮后仍满足继续条件且未触达 `max_rounds`，继续输出 `delta_step11_stress_4.md`、`delta_step11_stress_5.md`，直到硬收敛。
 - Step 16 默认读取本步骤编号最大的 `delta_step11_stress_*.md` 作为压力专项 delta。

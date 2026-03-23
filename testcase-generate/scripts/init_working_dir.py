@@ -7,33 +7,13 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-MODE_PRESETS = {
-    "lite": {
-        "required_steps": ["0", "1", "2", "3", "4", "8", "16", "17"],
-        "optional_steps": ["5", "6", "7", "9", "10", "11", "12", "13", "14", "15"],
-        "round_policy": {
-            "step_8": {"default_rounds": 1, "max_rounds": 2},
-            "step_9_to_15": {"default_rounds": 1, "max_rounds": 2},
-            "step_17": {"default_rounds": 1, "max_rounds": 2},
-        },
-    },
-    "standard": {
-        "required_steps": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "16", "17"],
-        "optional_steps": ["9", "10", "11", "12", "13", "14", "15"],
-        "round_policy": {
-            "step_8": {"default_rounds": 2, "max_rounds": 3},
-            "step_9_to_15": {"default_rounds": 1, "max_rounds": 2},
-            "step_17": {"default_rounds": 2, "max_rounds": 3},
-        },
-    },
-    "deep": {
-        "required_steps": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "16", "17"],
-        "optional_steps": ["9", "10", "11", "12", "13", "14", "15"],
-        "round_policy": {
-            "step_8": {"default_rounds": 3, "max_rounds": 5},
-            "step_9_to_15": {"default_rounds": 3, "max_rounds": 5},
-            "step_17": {"default_rounds": 3, "max_rounds": 5},
-        },
+WORKFLOW_PRESET = {
+    "required_steps": [str(step) for step in range(18)],
+    "optional_steps": [],
+    "round_policy": {
+        "step_8": {"default_rounds": 3, "max_rounds": 5},
+        "step_9_to_15": {"default_rounds": 3, "max_rounds": 5},
+        "step_17": {"default_rounds": 3, "max_rounds": 5},
     },
 }
 
@@ -109,18 +89,20 @@ def resolve_working_dir(existing_workdir: str | None, output_dir: str | None, pr
     return (parent_dir / f"{prefix}-{timestamp}").resolve()
 
 
-def build_workflow_state(mode: str, working_dir: Path) -> dict[str, object]:
-    preset = MODE_PRESETS[mode]
+def build_workflow_state(working_dir: Path) -> dict[str, object]:
     return {
-        "mode": mode,
-        "required_steps": preset["required_steps"],
-        "optional_steps": preset["optional_steps"],
-        "round_policy": preset["round_policy"],
+        "required_steps": WORKFLOW_PRESET["required_steps"],
+        "optional_steps": WORKFLOW_PRESET["optional_steps"],
+        "round_policy": WORKFLOW_PRESET["round_policy"],
+        "execution_policy": {
+            "user_step_selection_required": False,
+            "step_selection": "run_all_steps_in_order",
+        },
         "convergence_rules": {
             "stop_when": [
                 "Two consecutive rounds add zero new一级场景 and zero net-new leaf cases.",
                 "The current round adds fewer than 3 net-new leaf cases and no unresolved blocker remains.",
-                "The current mode has reached the configured max_rounds for this step.",
+                "The current step has reached the configured max_rounds.",
             ],
             "continue_when": [
                 "A new一级场景 appears in the current round.",
@@ -142,7 +124,11 @@ def build_workflow_state(mode: str, working_dir: Path) -> dict[str, object]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a testcase-generate working directory.")
-    parser.add_argument("--mode", choices=sorted(MODE_PRESETS), default="standard", help="Workflow mode preset.")
+    parser.add_argument(
+        "--mode",
+        default=None,
+        help=argparse.SUPPRESS,
+    )
     parser.add_argument(
         "--existing-workdir",
         help="Reuse an intake work directory that was already created earlier.",
@@ -171,7 +157,7 @@ def main() -> int:
     manifest_path = working_dir / "full_read_manifest.md"
     manifest_path.write_text(MANIFEST_HEADER, encoding="utf-8")
 
-    workflow_state = build_workflow_state(args.mode, working_dir)
+    workflow_state = build_workflow_state(working_dir)
     workflow_state_path = working_dir / "workflow_state.json"
     workflow_state_path.write_text(
         json.dumps(workflow_state, ensure_ascii=False, indent=2) + "\n",
@@ -182,7 +168,6 @@ def main() -> int:
         json.dumps(
             {
                 "working_dir": str(working_dir),
-                "mode": args.mode,
                 "workflow_state": str(workflow_state_path),
                 "manifest": str(manifest_path),
                 "baseline_dir": str((working_dir / "baseline").resolve()),
